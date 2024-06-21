@@ -1,6 +1,7 @@
 package com.chat;
 
 import java.io.IOException;
+
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 
@@ -12,6 +13,7 @@ public class Screen {
     public Screen() {
         try {
             terminal = TerminalBuilder.builder().system(true).build();
+            // terminal.enterRawMode();
         }
         catch (IOException e) {
             e.printStackTrace();

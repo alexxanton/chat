@@ -6,18 +6,19 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Scanner;
 
 public class Main {
     private final int PORT = 3000;
-    // private String ipAddress = "192.168.1.114";
-    private String ipAddress = "172.17.24.193";
+    private String ipAddress = "192.168.1.114";
+    // private String ipAddress = "172.17.24.193";
     private boolean loop = true;
+    private Screen screen = new Screen();
     
     public static void main(String[] args) {
         Main chat = new Main();
-        chat.enterIP();
-        // chat.handleScreenResize();
+        chat.handleScreenResize();
+        System.out.print("Enter the IP: ");
+        chat.readLine();
         chat.startServer();
         chat.startClient();
     }
@@ -67,15 +68,17 @@ public class Main {
         thread.start();
     }
 
-    public void enterIP() {
-        System.out.print("Enter the IP: ");
-        Scanner scan = new Scanner(System.in);
-        ipAddress = scan.nextLine();
-        scan.close();
+    public void readLine() {
+        BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
+        try {
+            ipAddress = input.readLine();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void handleScreenResize() {
-        Screen screen = new Screen();
         Thread thread = new Thread(() -> {
             while (loop) {
                 if (screen.resized()) {
