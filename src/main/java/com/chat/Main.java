@@ -9,11 +9,9 @@ public class Main {
         // Linux: 172.17.24.193
         // Windows: 192.168.1.114
         Main chat = new Main();
-        Connection conn = new Connection();
+        Peer peer = new Peer();
         chat.handleScreenResize();
-        conn.ipAssign();
-        conn.startClient();
-        conn.startServer();
+        peer.connect();
     }
 
     public void handleScreenResize() {

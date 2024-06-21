@@ -7,10 +7,17 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class Connection {
+public class Peer {
     private final int PORT = 3000;
     private String ipAddress = "";
     private boolean loop = true;
+    private boolean connected = false;
+
+    public void connect() {
+        ipAssign();
+        startClient();
+        startServer();
+    }
 
     public void startServer() {
         Thread thread = new Thread(() -> {
@@ -41,18 +48,21 @@ public class Connection {
 
     public void startClient() {
         Thread thread = new Thread(() -> {
-            try {
-                while (loop) {
-                    Socket socket = new Socket(ipAddress, PORT);
-                    BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                    String serverResponse = input.readLine();
-                    System.out.println(serverResponse);
-                    socket.close();
-                    threadSleep();
+            while (!connected) {
+                try {
+                    while (loop) {
+                        Socket socket = new Socket(ipAddress, PORT);
+                        BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                        String serverResponse = input.readLine();
+                        System.out.println(serverResponse);
+                        socket.close();
+                        connected = true;
+                        threadSleep();
+                    }
                 }
-            }
-            catch (Exception e) {
-                System.err.println("Couldnt connect to server. " + e.getMessage() + ".");
+                catch (Exception e) {
+                    System.err.println("Couldnt connect to server. " + e.getMessage() + ".");
+                }
             }
         });
         thread.start();
