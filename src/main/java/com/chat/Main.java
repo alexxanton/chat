@@ -9,16 +9,16 @@ import java.net.Socket;
 
 public class Main {
     private final int PORT = 3000;
-    private String ipAddress = "192.168.1.114";
-    // private String ipAddress = "172.17.24.193";
+    private String ipAddress = "";
     private boolean loop = true;
     private Screen screen = new Screen();
     
     public static void main(String[] args) {
+        // Linux: 172.17.24.193
+        // Windows: 192.168.1.114
         Main chat = new Main();
         chat.handleScreenResize();
-        System.out.print("Enter the IP: ");
-        chat.readLine();
+        chat.ipAssign();
         chat.startServer();
         chat.startClient();
     }
@@ -32,7 +32,8 @@ public class Main {
                         Socket client = server.accept();
                         System.out.println(client.getInetAddress());
                         PrintWriter out = new PrintWriter(client.getOutputStream(), true);
-                        out.println("hello");
+                        String line = readLine();
+                        out.println(line);
                         client.close();
                     }
                     catch (Exception e) {
@@ -68,14 +69,20 @@ public class Main {
         thread.start();
     }
 
-    public void readLine() {
+    public String readLine() {
         BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
         try {
-            ipAddress = input.readLine();
+            return input.readLine();
         }
         catch (IOException e) {
             e.printStackTrace();
         }
+        return "";
+    }
+
+    public void ipAssign() {
+        System.out.print("Enter the IP: ");
+        ipAddress = readLine();
     }
 
     public void handleScreenResize() {

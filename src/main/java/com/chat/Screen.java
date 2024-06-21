@@ -13,7 +13,6 @@ public class Screen {
     public Screen() {
         try {
             terminal = TerminalBuilder.builder().system(true).build();
-            // terminal.enterRawMode();
         }
         catch (IOException e) {
             e.printStackTrace();
