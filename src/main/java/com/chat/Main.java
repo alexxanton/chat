@@ -1,7 +1,6 @@
 package com.chat;
 
 public class Main {
-    
     private boolean loop = true;
     private Screen screen = new Screen();
     

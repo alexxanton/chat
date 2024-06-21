@@ -12,6 +12,7 @@ public class Peer {
     private String ipAddress = "";
     private boolean loop = true;
     private boolean connected = false;
+    private boolean loadingAnimationStarted = false;
 
     public void connect() {
         ipAssign();
@@ -35,7 +36,7 @@ public class Peer {
                     catch (Exception e) {
                         System.err.println("Error. " + e.getMessage() + ".");
                     }
-                    threadSleep();
+                    threadSleep(100);
                 }
                 server.close();
             }
@@ -48,7 +49,8 @@ public class Peer {
 
     public void startClient() {
         Thread thread = new Thread(() -> {
-            while (!connected) {
+            
+            while (loop) {
                 try {
                     while (loop) {
                         Socket socket = new Socket(ipAddress, PORT);
@@ -57,15 +59,34 @@ public class Peer {
                         System.out.println(serverResponse);
                         socket.close();
                         connected = true;
-                        threadSleep();
+                        threadSleep(100);
                     }
                 }
                 catch (Exception e) {
-                    System.err.println("Couldnt connect to server. " + e.getMessage() + ".");
+                    if (connected) System.err.print("Couldnt connect to server. " + e.getMessage() + ".");
+                    else if (!loadingAnimationStarted) startLoadingAnimation();
                 }
             }
         });
         thread.start();
+    }
+
+    private void startLoadingAnimation() {
+        loadingAnimationStarted = true;
+        Thread loadingAnimation = new Thread(() -> {
+            int loadingAnimationIndex = 0;
+            System.out.print(Cursor.HIDE_CURSOR);
+            while (!connected) {
+                System.out.print(Cursor.CHANGE_COLUMN);
+                if (loadingAnimationIndex > 3) loadingAnimationIndex = 0;
+                System.out.print("Couldnt connect to server. Retrying" + ".".repeat(loadingAnimationIndex));
+                System.out.print(Cursor.CLEAR_LINE_AFTER_CURSOR);
+                loadingAnimationIndex++;
+                threadSleep(300);
+            }
+            System.out.print(Cursor.SHOW_CURSOR);
+        });
+        loadingAnimation.start();
     }
 
     public String readLine() {
@@ -84,9 +105,9 @@ public class Peer {
         ipAddress = readLine();
     }
 
-    private void threadSleep() {
+    private void threadSleep(int time) {
         try {
-            Thread.sleep(100);
+            Thread.sleep(time);
         }
         catch (InterruptedException e) {
             System.err.println(e.getMessage() + ".");
