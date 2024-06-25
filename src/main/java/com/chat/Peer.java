@@ -22,7 +22,26 @@ public class Peer {
         startServer();
     }
 
-    public void startServer() {
+    private void ipAssign() {
+        System.out.print("Enter the IP: ");
+        boolean valid = false;
+        while (!valid) {
+            ipAddress = readLine();
+            valid = ipValidation();
+            if (valid) return;
+            System.out.print("Invalid IP, try again: ");
+        }
+    }
+
+    private boolean ipValidation() {
+        String numRange = "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)";
+        String dot = "\\.";
+        String regex = "^" + numRange + dot + numRange + dot + numRange + dot + numRange + "$";
+        if (ipAddress.matches(regex) || ipAddress.equals("")) return true;
+        return false;
+    }
+
+    private void startServer() {
         Thread thread = new Thread(() -> {
             try {
                 ServerSocket server = new ServerSocket(PORT);
@@ -50,18 +69,7 @@ public class Peer {
         thread.start();
     }
 
-    private void close(ServerSocket server) {
-        try {
-            server.close();
-            input.close();
-        } catch (IOException e) {
-            System.out.println(e.getMessage() + ".");
-        }
-        System.out.println(Cursor.SHOW_CURSOR);
-        System.exit(0);
-    }
-
-    public void startClient() {
+    private void startClient() {
         Thread thread = new Thread(() -> {
             while (loop) {
                 try {
@@ -84,6 +92,26 @@ public class Peer {
         thread.start();
     }
 
+    private String readLine() {
+        try {
+            return input.readLine();
+        } catch (IOException e) {
+            System.err.println(e.getMessage() + ".");
+            return "";
+        }
+    }
+
+    private void close(ServerSocket server) {
+        try {
+            server.close();
+            input.close();
+        } catch (IOException e) {
+            System.out.println(e.getMessage() + ".");
+        }
+        System.out.println(Cursor.SHOW_CURSOR);
+        System.exit(0);
+    }
+
     private void startLoadingAnimation() {
         loadingAnimationStarted = true;
         Thread loadingAnimation = new Thread(() -> {
@@ -100,20 +128,6 @@ public class Peer {
             System.out.print(Cursor.SHOW_CURSOR);
         });
         loadingAnimation.start();
-    }
-
-    private String readLine() {
-        try {
-            return input.readLine();
-        } catch (IOException e) {
-            System.err.println(e.getMessage() + ".");
-            return "";
-        }
-    }
-
-    private void ipAssign() {
-        System.out.print("Enter the IP: ");
-        ipAddress = readLine();
     }
 
     private void threadSleep(int time) {
