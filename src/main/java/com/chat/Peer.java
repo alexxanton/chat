@@ -13,8 +13,10 @@ public class Peer {
     private boolean loop = true;
     private boolean connected = false;
     private boolean loadingAnimationStarted = false;
+    private BufferedReader input;
 
     public void connect() {
+        System.out.println(Cursor.SHOW_CURSOR);
         ipAssign();
         startClient();
         startServer();
@@ -30,6 +32,7 @@ public class Peer {
                         System.out.println(client.getInetAddress());
                         PrintWriter out = new PrintWriter(client.getOutputStream(), true);
                         String line = readLine();
+                        if (line.equalsIgnoreCase("exit")) loop = false;
                         out.println(line);
                         client.close();
                     }
@@ -38,18 +41,28 @@ public class Peer {
                     }
                     threadSleep(100);
                 }
-                server.close();
+                close(server);
             }
             catch (IOException e) {
-                System.err.println("Couldnt connect to client. " + e.getMessage() + ".");
+                System.err.println("Couldn't connect to client. " + e.getMessage() + ".");
             }
         });
         thread.start();
     }
 
+    private void close(ServerSocket server) {
+        try {
+            server.close();
+            input.close();
+        } catch (IOException e) {
+            System.out.println(e.getMessage() + ".");
+        }
+        System.out.println(Cursor.SHOW_CURSOR);
+        System.exit(0);
+    }
+
     public void startClient() {
         Thread thread = new Thread(() -> {
-            
             while (loop) {
                 try {
                     while (loop) {
@@ -63,7 +76,7 @@ public class Peer {
                     }
                 }
                 catch (Exception e) {
-                    if (connected) System.err.print("Couldnt connect to server. " + e.getMessage() + ".");
+                    if (connected) System.err.println("Couldn't connect to server. " + e.getMessage() + ".");
                     else if (!loadingAnimationStarted) startLoadingAnimation();
                 }
             }
@@ -74,14 +87,14 @@ public class Peer {
     private void startLoadingAnimation() {
         loadingAnimationStarted = true;
         Thread loadingAnimation = new Thread(() -> {
-            int loadingAnimationIndex = 0;
+            int index = 0;
             System.out.print(Cursor.HIDE_CURSOR);
             while (!connected) {
                 System.out.print(Cursor.CHANGE_COLUMN);
-                if (loadingAnimationIndex > 3) loadingAnimationIndex = 0;
-                System.out.print("Couldnt connect to server. Retrying" + ".".repeat(loadingAnimationIndex));
+                if (index > 3) index = 0;
+                System.out.print("Couldn't connect to server. Retrying" + ".".repeat(index));
                 System.out.print(Cursor.CLEAR_LINE_AFTER_CURSOR);
-                loadingAnimationIndex++;
+                index++;
                 threadSleep(300);
             }
             System.out.print(Cursor.SHOW_CURSOR);
@@ -89,18 +102,17 @@ public class Peer {
         loadingAnimation.start();
     }
 
-    public String readLine() {
-        BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
+    private String readLine() {
         try {
             return input.readLine();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             System.err.println(e.getMessage() + ".");
+            return "";
         }
-        return "";
     }
 
-    public void ipAssign() {
+    private void ipAssign() {
+        input = new BufferedReader(new InputStreamReader(System.in));
         System.out.print("Enter the IP: ");
         ipAddress = readLine();
     }
@@ -108,8 +120,7 @@ public class Peer {
     private void threadSleep(int time) {
         try {
             Thread.sleep(time);
-        }
-        catch (InterruptedException e) {
+        } catch (InterruptedException e) {
             System.err.println(e.getMessage() + ".");
         }
     }
