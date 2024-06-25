@@ -37,7 +37,9 @@ public class Peer {
         String numRange = "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)";
         String dot = "\\.";
         String regex = "^" + numRange + dot + numRange + dot + numRange + dot + numRange + "$";
-        if (ipAddress.matches(regex) || ipAddress.equals("")) return true;
+        if (ipAddress.matches(regex) || ipAddress.isEmpty()) {
+            return true;
+        }
         return false;
     }
 
@@ -48,11 +50,11 @@ public class Peer {
                 while (loop) {
                     try {
                         Socket client = server.accept();
-                        System.out.println(client.getInetAddress());
                         PrintWriter output = new PrintWriter(client.getOutputStream(), true);
                         String line = readLine();
-                        if (line.equalsIgnoreCase("exit")) loop = false;
-                        output.println(line);
+                        if (!keywordDetected(line.replaceAll("\\s", ""))) {
+                            output.println(line);
+                        }
                         client.close();
                         threadSleep(100);
                     }
@@ -67,6 +69,18 @@ public class Peer {
             }
         });
         thread.start();
+    }
+
+    private boolean keywordDetected(String line) {
+        switch (line.toLowerCase()) {
+            case "exit":
+                loop = false;
+                break;
+        
+            default:
+                return false;
+        }
+        return true;
     }
 
     private void startClient() {
