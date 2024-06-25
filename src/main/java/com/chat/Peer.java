@@ -13,7 +13,7 @@ public class Peer {
     private boolean loop = true;
     private boolean connected = false;
     private boolean loadingAnimationStarted = false;
-    private BufferedReader input;
+    private BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 
     public void connect() {
         System.out.println(Cursor.SHOW_CURSOR);
@@ -30,16 +30,16 @@ public class Peer {
                     try {
                         Socket client = server.accept();
                         System.out.println(client.getInetAddress());
-                        PrintWriter out = new PrintWriter(client.getOutputStream(), true);
+                        PrintWriter output = new PrintWriter(client.getOutputStream(), true);
                         String line = readLine();
                         if (line.equalsIgnoreCase("exit")) loop = false;
-                        out.println(line);
+                        output.println(line);
                         client.close();
+                        threadSleep(100);
                     }
                     catch (Exception e) {
                         System.err.println("Error. " + e.getMessage() + ".");
                     }
-                    threadSleep(100);
                 }
                 close(server);
             }
@@ -112,7 +112,6 @@ public class Peer {
     }
 
     private void ipAssign() {
-        input = new BufferedReader(new InputStreamReader(System.in));
         System.out.print("Enter the IP: ");
         ipAddress = readLine();
     }
