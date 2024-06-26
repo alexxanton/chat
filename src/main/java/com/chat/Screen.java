@@ -13,6 +13,7 @@ public class Screen {
     public Screen() {
         try {
             terminal = TerminalBuilder.builder().system(true).build();
+            // terminal.enterRawMode();
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -26,7 +27,7 @@ public class Screen {
     public void adjust() {
         width = terminal.getWidth();
         height = terminal.getHeight();
-        System.out.println(width + "x" + height);
+        // System.out.println(width + "x" + height);
     }
     
     public int getWidth() {

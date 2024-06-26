@@ -6,18 +6,23 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 
 public class Peer {
     private final int PORT = 3000;
     private String ipAddress = "";
     private boolean loop = true;
     private boolean connected = false;
+    private boolean msgMode = false;
+    private boolean searchMode = false;
     private boolean loadingAnimationStarted = false;
+    private ArrayList<String> messages = new ArrayList<>();
     private BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 
     public void connect() {
         System.out.println(Cursor.SHOW_CURSOR);
         ipAssign();
+        System.out.println("Welcome!");
         startClient();
         startServer();
     }
@@ -50,7 +55,7 @@ public class Peer {
                         Socket client = server.accept();
                         PrintWriter output = new PrintWriter(client.getOutputStream(), true);
                         String line = readLine();
-                        if (line.length() < 10 && !keywordDetected(line)) {
+                        if (!keywordDetected(line)) {
                             output.println(line);
                         }
                         client.close();
@@ -70,72 +75,6 @@ public class Peer {
         thread.start();
     }
 
-    private boolean keywordDetected(String str) {
-        String line = str.toLowerCase().replaceAll("\\s", "");
-        switch (line) {
-            case "exit":
-                loop = false;
-                break;
-
-            case "msg":
-                break;
-
-            case "send":
-                break;
-
-            case "print":
-                break;
-
-            case "search":
-                break;
-
-            case "end":
-                break;
-
-            case "count": // Count how many messages there are
-                break;
-        
-            default:
-                if (line.matches("^goto\\d*$")) {
-                    int bubble = count();
-                    bubble = Integer.parseInt(line.split("(?<=\\D)(?=\\d)")[1]);
-                    goTo(bubble);
-                }
-                else if (line.matches("^(up|dwn|down)\\d*$")) {
-                    splitAndExecuteCommand(line);
-                    return true;
-                }
-                return false;
-        }
-        return true;
-    }
-
-    private void splitAndExecuteCommand(String line) {
-        String[] splits = line.split("(?<=\\D)(?=\\d)");
-        String keyword = splits[0];
-        int bubbles = 1;
-        if (splits.length > 1) bubbles = Integer.parseInt(splits[1]);
-        System.out.println(keyword + " " + bubbles);
-        if (keyword.equals("up")) {
-            goUpBy(bubbles);
-        } else {
-            goDownBy(bubbles);
-        }
-    }
-
-    private int count() {
-        return 0;
-    }
-
-    private void goUpBy(int amount) {
-    }
-
-    private void goDownBy(int amount) {
-    }
-
-    private void goTo(int num) {
-    }
-
     private void startClient() {
         Thread thread = new Thread(() -> {
             while (loop) {
@@ -143,8 +82,11 @@ public class Peer {
                     while (loop) {
                         Socket socket = new Socket(ipAddress, PORT);
                         BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                        String serverResponse = input.readLine();
-                        System.out.println(serverResponse);
+                        String msg = input.readLine();
+                        if (msg != null) {
+                            System.out.println(msg);
+                        }
+                        System.out.println("sckt closed");
                         socket.close();
                         connected = true;
                         threadSleep(100);
@@ -158,6 +100,66 @@ public class Peer {
         });
         thread.start();
     }
+
+    private boolean keywordDetected(String str) {
+        String line = str.toLowerCase().replaceAll("\\s", "");
+        switch (line) {
+            case "exit"  : loop = false;        break;
+            case "msg"   : msgMode = true;      break;
+            case "send"  : msgMode = false;     break;
+            case "search": searchMode = true;   break;
+            case "end"   : searchMode = false;  break;
+            case "print" : print();             break;
+            case "count" : count();             break;
+            default:
+                if (line.matches("^(goto|up|down|dwn)\\d*$")) {
+                    splitAndExecuteCommand(line);
+                    return true;
+                }
+                return false;
+        }
+        return true;
+    }
+
+    private void splitAndExecuteCommand(String line) {
+        String[] splits = line.split("(?<=\\D)(?=\\d)");
+        int num = 1;
+        if (splits.length > 1) num = Integer.parseInt(splits[1]);
+
+        if (line.matches("^goto\\d*$")) {
+            int bubble = count();
+            if (splits.length > 1) bubble = num;
+            goTo(bubble);
+        }
+        else if (line.matches("^(up|dwn|down)\\d*$")) {
+            String keyword = splits[0];
+            int amount = 1;
+            if (splits.length > 1) amount = num;
+            if (keyword.equals("up")) {
+                scrollUpBy(amount);
+            } else {
+                scrollDownBy(amount);
+            }
+        }
+    }
+
+    private int count() {
+        return messages.size();
+    }
+
+    private void print() {
+    }
+
+    private void scrollUpBy(int amount) {
+    }
+
+    private void scrollDownBy(int amount) {
+    }
+
+    private void goTo(int num) {
+    }
+
+    
 
     private String readLine() {
         try {
