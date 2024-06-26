@@ -34,9 +34,7 @@ public class Peer {
     }
 
     private boolean ipValidation() {
-        String numRange = "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)";
-        String dot = "\\.";
-        String regex = "^" + numRange + dot + numRange + dot + numRange + dot + numRange + "$";
+        String regex = "^((25[0-5]|(2[0-4]|1[0-9]|[1-9]|)[0-9])(\\.(?!$)|$)){4}$";
         if (ipAddress.matches(regex) || ipAddress.isEmpty()) {
             return true;
         }
@@ -52,7 +50,7 @@ public class Peer {
                         Socket client = server.accept();
                         PrintWriter output = new PrintWriter(client.getOutputStream(), true);
                         String line = readLine();
-                        if (!keywordDetected(line.replaceAll("\\s", ""))) {
+                        if (!keywordDetected(line)) {
                             output.println(line);
                         }
                         client.close();
@@ -60,6 +58,7 @@ public class Peer {
                     }
                     catch (Exception e) {
                         System.err.println("Error. " + e.getMessage() + ".");
+                        e.printStackTrace();
                     }
                 }
                 close(server);
@@ -72,15 +71,48 @@ public class Peer {
     }
 
     private boolean keywordDetected(String line) {
-        switch (line.toLowerCase()) {
+        String word = line.toLowerCase().replaceAll("\\s", "");
+        switch (word) {
             case "exit":
                 loop = false;
                 break;
+
+            case "msg":
+                break;
+
+            case "send":
+                break;
+
+            case "print":
+                break;
         
             default:
+                if (word.matches("^(up|dwn)([0-9]{1,4})?$")) {
+                    splitAndExecuteCommand(word);
+                    return true;
+                }
                 return false;
         }
         return true;
+    }
+
+    private void splitAndExecuteCommand(String word) {
+        String[] splits = word.split("(?<=\\D)(?=\\d)");
+        String keyword = splits[0];
+        int bubbles = Integer.parseInt(splits[1]);
+        // int bubbles = 1;
+        System.out.println(keyword + " " + bubbles);
+        if (keyword.equals("up")) {
+            goUpBy(bubbles);
+        } else {
+            goDownBy(bubbles);
+        }
+    }
+
+    private void goUpBy(int num) {
+    }
+
+    private void goDownBy(int num) {
     }
 
     private void startClient() {
