@@ -85,9 +85,15 @@ public class Peer {
 
             case "print":
                 break;
+
+            case "search":
+                break;
+
+            case "end":
+                break;
         
             default:
-                if (word.matches("^(up|dwn)([0-9]{1,4})?$")) {
+                if (word.matches("^(up|dwn)(\\d+)?$")) {
                     splitAndExecuteCommand(word);
                     return true;
                 }
@@ -99,8 +105,10 @@ public class Peer {
     private void splitAndExecuteCommand(String word) {
         String[] splits = word.split("(?<=\\D)(?=\\d)");
         String keyword = splits[0];
-        int bubbles = Integer.parseInt(splits[1]);
-        // int bubbles = 1;
+        int bubbles = 1;
+        if (splits.length > 1) {
+            bubbles = Integer.parseInt(splits[1]);
+        }
         System.out.println(keyword + " " + bubbles);
         if (keyword.equals("up")) {
             goUpBy(bubbles);
