@@ -19,6 +19,7 @@ public class Peer {
     private ArrayList<String> messages = new ArrayList<>();
     private BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 
+
     public void connect() {
         System.out.println(Cursor.SHOW_CURSOR);
         ipAssign();
@@ -26,6 +27,9 @@ public class Peer {
         startClient();
         startServer();
     }
+
+
+    // IP ADDRESS
 
     private void ipAssign() {
         System.out.print("Enter the IP: ");
@@ -45,6 +49,9 @@ public class Peer {
         }
         return false;
     }
+
+
+    // SERVER
 
     private void startServer() {
         Thread thread = new Thread(() -> {
@@ -75,22 +82,33 @@ public class Peer {
         thread.start();
     }
 
+    private void close(ServerSocket server) {
+        try {
+            server.close();
+            input.close();
+        } catch (IOException e) {
+            System.out.println(e.getMessage() + ".");
+        }
+        System.out.println(Cursor.SHOW_CURSOR);
+        System.exit(0);
+    }
+
+
+    // CLIENT
+
     private void startClient() {
         Thread thread = new Thread(() -> {
             while (loop) {
                 try {
-                    while (loop) {
-                        Socket socket = new Socket(ipAddress, PORT);
-                        BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                        String msg = input.readLine();
-                        if (msg != null) {
-                            System.out.println(msg);
-                        }
-                        System.out.println("sckt closed");
-                        socket.close();
-                        connected = true;
-                        threadSleep(100);
+                    Socket socket = new Socket(ipAddress, PORT);
+                    BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                    String msg = input.readLine();
+                    if (msg != null) {
+                        System.out.println(msg);
                     }
+                    socket.close();
+                    connected = true;
+                    threadSleep(100);
                 }
                 catch (Exception e) {
                     if (connected) System.err.println("Couldn't connect to server. " + e.getMessage() + ".");
@@ -100,6 +118,18 @@ public class Peer {
         });
         thread.start();
     }
+
+    private String readLine() {
+        try {
+            return input.readLine();
+        } catch (IOException e) {
+            System.err.println(e.getMessage() + ".");
+            return "";
+        }
+    }
+
+
+    // KEYWORDS
 
     private boolean keywordDetected(String str) {
         String line = str.toLowerCase().replaceAll("\\s", "");
@@ -143,6 +173,9 @@ public class Peer {
         }
     }
 
+
+    // COMMANDS
+
     private int count() {
         return messages.size();
     }
@@ -159,27 +192,8 @@ public class Peer {
     private void goTo(int num) {
     }
 
-    
 
-    private String readLine() {
-        try {
-            return input.readLine();
-        } catch (IOException e) {
-            System.err.println(e.getMessage() + ".");
-            return "";
-        }
-    }
-
-    private void close(ServerSocket server) {
-        try {
-            server.close();
-            input.close();
-        } catch (IOException e) {
-            System.out.println(e.getMessage() + ".");
-        }
-        System.out.println(Cursor.SHOW_CURSOR);
-        System.exit(0);
-    }
+    // ANIMATION
 
     private void startLoadingAnimation() {
         loadingAnimationStarted = true;
