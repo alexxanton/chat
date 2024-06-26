@@ -70,9 +70,9 @@ public class Peer {
         thread.start();
     }
 
-    private boolean keywordDetected(String line) {
-        String word = line.toLowerCase().replaceAll("\\s", "");
-        switch (word) {
+    private boolean keywordDetected(String str) {
+        String line = str.toLowerCase().replaceAll("\\s", "");
+        switch (line) {
             case "exit":
                 loop = false;
                 break;
@@ -93,8 +93,8 @@ public class Peer {
                 break;
         
             default:
-                if (word.matches("^(up|dwn)(\\d+)?$")) {
-                    splitAndExecuteCommand(word);
+                if (line.matches("^(up|dwn)(\\d+)?$")) {
+                    splitAndExecuteCommand(line);
                     return true;
                 }
                 return false;
@@ -102,13 +102,11 @@ public class Peer {
         return true;
     }
 
-    private void splitAndExecuteCommand(String word) {
-        String[] splits = word.split("(?<=\\D)(?=\\d)");
+    private void splitAndExecuteCommand(String line) {
+        String[] splits = line.split("(?<=\\D)(?=\\d)");
         String keyword = splits[0];
         int bubbles = 1;
-        if (splits.length > 1) {
-            bubbles = Integer.parseInt(splits[1]);
-        }
+        if (splits.length > 1) bubbles = Integer.parseInt(splits[1]);
         System.out.println(keyword + " " + bubbles);
         if (keyword.equals("up")) {
             goUpBy(bubbles);
