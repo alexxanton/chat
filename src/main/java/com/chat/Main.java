@@ -17,7 +17,7 @@ public class Main {
         Thread thread = new Thread(() -> {
             while (loop) {
                 if (screen.resized()) {
-                    screen.resetSize();
+                    screen.adjust();
                 }
                 threadSleep();
             }

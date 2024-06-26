@@ -50,7 +50,7 @@ public class Peer {
                         Socket client = server.accept();
                         PrintWriter output = new PrintWriter(client.getOutputStream(), true);
                         String line = readLine();
-                        if (!keywordDetected(line)) {
+                        if (line.length() < 10 && !keywordDetected(line)) {
                             output.println(line);
                         }
                         client.close();
@@ -91,9 +91,17 @@ public class Peer {
 
             case "end":
                 break;
+
+            case "count": // Count how many messages there are
+                break;
         
             default:
-                if (line.matches("^(up|dwn)(\\d+)?$")) {
+                if (line.matches("^goto\\d*$")) {
+                    int bubble = count();
+                    bubble = Integer.parseInt(line.split("(?<=\\D)(?=\\d)")[1]);
+                    goTo(bubble);
+                }
+                else if (line.matches("^(up|dwn|down)\\d*$")) {
                     splitAndExecuteCommand(line);
                     return true;
                 }
@@ -115,10 +123,17 @@ public class Peer {
         }
     }
 
-    private void goUpBy(int num) {
+    private int count() {
+        return 0;
     }
 
-    private void goDownBy(int num) {
+    private void goUpBy(int amount) {
+    }
+
+    private void goDownBy(int amount) {
+    }
+
+    private void goTo(int num) {
     }
 
     private void startClient() {

@@ -23,7 +23,7 @@ public class Screen {
         return width != terminal.getWidth() || height != terminal.getHeight();
     }
     
-    public void resetSize() {
+    public void adjust() {
         width = terminal.getWidth();
         height = terminal.getHeight();
         System.out.println(width + "x" + height);
