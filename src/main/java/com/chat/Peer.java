@@ -62,10 +62,14 @@ public class Peer {
                         Socket client = server.accept();
                         PrintWriter output = new PrintWriter(client.getOutputStream(), true);
                         String msg = readLine();
+
                         if (!keywordDetected(msg)) {
-                            msgList.add(msg);
-                            output.println(msg);
+                            if (!(msgMode || searchMode)) {
+                                msgList.add(msg);
+                                output.println(msg);
+                            }
                         }
+                        
                         client.close();
                         threadSleep(100);
                     }
@@ -138,8 +142,10 @@ public class Peer {
             case "exit"  : loop = false;        break;
             case "msg"   : msgMode = true;      break;
             case "send"  : msgMode = false;     break;
+            case "delete": msgMode = false;     break;
             case "search": searchMode = true;   break;
             case "end"   : searchMode = false;  break;
+            case "cancel": searchMode = false;  break;
             case "print" : print();             break;
             case "count" : displayCount();      break;
             default:
@@ -154,23 +160,24 @@ public class Peer {
 
     private void splitAndExecuteCommand(String line) {
         String[] splits = line.split("(?<=\\D)(?=\\d)");
-        int n = 1;
-        if (splits.length > 1) n = Integer.parseInt(splits[1]);
-        if (line.matches("^goto\\d*$")) {
-            int id = count(); // Default value (bottom)
-            if (splits.length > 1) id = n;
+        int num = 1;
+        int id = count(); // defaults to last message
+
+        if (splits.length > 1) {
+            num = Integer.parseInt(splits[1]);
+            id = num;
+        }
+
+        if (line.contains("goto")) {
             goTo(id);
-        }
-        else if (line.matches("^rm\\d*$")) {
-            int id = n;
+        } else if (line.contains("rm")) {
             remove(id);
-        }
-        else {
+        } else {
             String keyword = splits[0];
             if (keyword.equals("up")) {
-                scrollUpBy(n);
+                scrollUpBy(num);
             } else {
-                scrollDownBy(n);
+                scrollDownBy(num);
             }
         }
     }
@@ -195,10 +202,10 @@ public class Peer {
     private void scrollDownBy(int amount) {
     }
 
-    private void goTo(int num) {
+    private void goTo(int id) {
     }
 
-    private void remove(int index) {
+    private void remove(int id) {
     }
 
 
