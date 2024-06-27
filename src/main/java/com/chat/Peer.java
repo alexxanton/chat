@@ -23,7 +23,6 @@ public class Peer {
     public void connect() {
         System.out.println(Cursor.SHOW_CURSOR);
         ipAssign();
-        System.out.println("Welcome!");
         startClient();
         startServer();
     }
@@ -61,6 +60,7 @@ public class Peer {
                     try {
                         Socket client = server.accept();
                         PrintWriter output = new PrintWriter(client.getOutputStream(), true);
+                        displayArrows();
                         String msg = readLine();
 
                         if (!keywordDetected(msg)) {
@@ -86,6 +86,16 @@ public class Peer {
         thread.start();
     }
 
+    private void displayArrows() {
+        String arrows = ">> ";
+        if (msgMode) {
+            arrows = "";
+        } else if (searchMode) {
+            arrows= "?> ";
+        }
+        System.out.print(arrows);
+    }
+
     private void close(ServerSocket server) {
         try {
             server.close();
@@ -104,6 +114,7 @@ public class Peer {
         Thread thread = new Thread(() -> {
             while (loop) {
                 try {
+                    // TODO: upon reconnecting after someone exits, the 1st message is lost
                     Socket socket = new Socket(ipAddress, PORT);
                     BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                     String msg = input.readLine();
@@ -141,8 +152,8 @@ public class Peer {
         switch (line) {
             case "exit"  : loop = false;        break;
             case "msg"   : msgMode = true;      break;
-            case "send"  : msgMode = false;     break;
-            case "delete": msgMode = false;     break;
+            case "."     : msgMode = false;     break;
+            case "del"   : msgMode = false;     break;
             case "search": searchMode = true;   break;
             case "end"   : searchMode = false;  break;
             case "cancel": searchMode = false;  break;
