@@ -16,7 +16,7 @@ public class Peer {
     private boolean msgMode = false;
     private boolean searchMode = false;
     private boolean loadingAnimationStarted = false;
-    private ArrayList<String> messages = new ArrayList<>();
+    private ArrayList<String> msgList = new ArrayList<>();
     private BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 
 
@@ -61,16 +61,16 @@ public class Peer {
                     try {
                         Socket client = server.accept();
                         PrintWriter output = new PrintWriter(client.getOutputStream(), true);
-                        String line = readLine();
-                        if (!keywordDetected(line)) {
-                            output.println(line);
+                        String msg = readLine();
+                        if (!keywordDetected(msg)) {
+                            msgList.add(msg);
+                            output.println(msg);
                         }
                         client.close();
                         threadSleep(100);
                     }
                     catch (Exception e) {
                         System.err.println("Error. " + e.getMessage() + ".");
-                        e.printStackTrace();
                     }
                 }
                 close(server);
@@ -87,9 +87,9 @@ public class Peer {
             server.close();
             input.close();
         } catch (IOException e) {
-            System.out.println(e.getMessage() + ".");
+            System.err.println(e.getMessage() + ".");
         }
-        System.out.println(Cursor.SHOW_CURSOR);
+        System.out.print(Cursor.SHOW_CURSOR);
         System.exit(0);
     }
 
@@ -104,6 +104,7 @@ public class Peer {
                     BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                     String msg = input.readLine();
                     if (msg != null) {
+                        msgList.add(msg);
                         System.out.println(msg);
                     }
                     socket.close();
@@ -140,9 +141,9 @@ public class Peer {
             case "search": searchMode = true;   break;
             case "end"   : searchMode = false;  break;
             case "print" : print();             break;
-            case "count" : count();             break;
+            case "count" : displayCount();      break;
             default:
-                if (line.matches("^(goto|up|down|dwn)\\d*$")) {
+                if (line.matches("^(goto|up|down|dwn|rm)\\d*$")) {
                     splitAndExecuteCommand(line);
                     return true;
                 }
@@ -153,22 +154,23 @@ public class Peer {
 
     private void splitAndExecuteCommand(String line) {
         String[] splits = line.split("(?<=\\D)(?=\\d)");
-        int num = 1;
-        if (splits.length > 1) num = Integer.parseInt(splits[1]);
-
+        int n = 1;
+        if (splits.length > 1) n = Integer.parseInt(splits[1]);
         if (line.matches("^goto\\d*$")) {
-            int bubble = count();
-            if (splits.length > 1) bubble = num;
-            goTo(bubble);
+            int id = count(); // Default value (bottom)
+            if (splits.length > 1) id = n;
+            goTo(id);
         }
-        else if (line.matches("^(up|dwn|down)\\d*$")) {
+        else if (line.matches("^rm\\d*$")) {
+            int id = n;
+            remove(id);
+        }
+        else {
             String keyword = splits[0];
-            int amount = 1;
-            if (splits.length > 1) amount = num;
             if (keyword.equals("up")) {
-                scrollUpBy(amount);
+                scrollUpBy(n);
             } else {
-                scrollDownBy(amount);
+                scrollDownBy(n);
             }
         }
     }
@@ -176,8 +178,12 @@ public class Peer {
 
     // COMMANDS
 
+    private void displayCount() {
+        System.out.println(count());
+    }
+
     private int count() {
-        return messages.size();
+        return msgList.size();
     }
 
     private void print() {
@@ -190,6 +196,9 @@ public class Peer {
     }
 
     private void goTo(int num) {
+    }
+
+    private void remove(int index) {
     }
 
 

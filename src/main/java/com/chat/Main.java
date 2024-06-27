@@ -5,8 +5,6 @@ public class Main {
     private Screen screen = new Screen();
     
     public static void main(String[] args) {
-        // Linux: 172.17.24.193
-        // Windows: 192.168.1.114
         Main chat = new Main();
         Peer peer = new Peer();
         chat.handleScreenResize();
