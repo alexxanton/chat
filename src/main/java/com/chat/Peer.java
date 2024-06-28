@@ -8,7 +8,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 
-public class Peer {
+public class Peer extends TerminalHandler {
     private final int PORT = 3000;
     private String ipAddress = "";
     private boolean loop = true;
@@ -22,6 +22,7 @@ public class Peer {
 
     public void connect() {
         System.out.println(Cursor.SHOW_CURSOR);
+        screen();
         ipAssign();
         startClient();
         startServer();
@@ -34,7 +35,7 @@ public class Peer {
         System.out.print("Enter the IP: ");
         boolean valid = false;
         while (!valid) {
-            ipAddress = readLine();
+            ipAddress = readKeys();
             valid = ipValidation();
             if (valid) return;
             System.out.print("Invalid IP, try again: ");
@@ -61,7 +62,7 @@ public class Peer {
                         Socket client = server.accept();
                         PrintWriter output = new PrintWriter(client.getOutputStream(), true);
                         displayArrows();
-                        String msg = readLine();
+                        String msg = readKeys();
 
                         if (!keywordDetected(msg)) {
                             if (!(msgMode || searchMode)) {
@@ -135,11 +136,20 @@ public class Peer {
         thread.start();
     }
 
-    private String readLine() {
+    private String readKeys() {
+        char letter;
+        String line = "";
         try {
-            return input.readLine();
-        } catch (IOException e) {
-            System.err.println(e.getMessage() + ".");
+            while ((letter = (char) reader.read()) != 13) {
+                line += letter;
+                // System.out.println(line);
+                System.out.print(letter);
+            }
+            System.out.print("\n");
+            return line;
+        }
+        catch (IOException e) {
+            e.printStackTrace();
             return "";
         }
     }
