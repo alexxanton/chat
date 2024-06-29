@@ -22,7 +22,6 @@ public class Peer extends TerminalHandler {
 
     public void connect() {
         System.out.println(Cursor.SHOW_CURSOR);
-        screen();
         ipAssign();
         startClient();
         startServer();
@@ -134,24 +133,6 @@ public class Peer extends TerminalHandler {
             }
         });
         thread.start();
-    }
-
-    private String readKeys() {
-        char letter;
-        String line = "";
-        try {
-            while ((letter = (char) reader.read()) != 13) {
-                line += letter;
-                // System.out.println(line);
-                System.out.print(letter);
-            }
-            System.out.print("\n");
-            return line;
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-            return "";
-        }
     }
 
 
