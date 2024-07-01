@@ -17,7 +17,6 @@ public class Peer extends TerminalHandler {
     private boolean searchMode = false;
     private boolean loadingAnimationStarted = false;
     private ArrayList<String> msgList = new ArrayList<>();
-    private BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 
 
     public void connect() {
@@ -99,12 +98,10 @@ public class Peer extends TerminalHandler {
     private void close(ServerSocket server) {
         try {
             server.close();
-            input.close();
         } catch (IOException e) {
             System.err.println(e.getMessage() + ".");
         }
         System.out.print(Cursor.SHOW_CURSOR);
-        System.exit(0);
     }
 
 

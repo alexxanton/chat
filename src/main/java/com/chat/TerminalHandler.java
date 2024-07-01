@@ -15,7 +15,6 @@ public class TerminalHandler {
     private int height = 0;
     private Terminal terminal;
     private NonBlockingReader reader;
-    private String escapeSequence = "";
     
     public TerminalHandler() {
         try {
@@ -45,7 +44,7 @@ public class TerminalHandler {
         StringBuilder line = new StringBuilder();
         while ((key = (char) readKey()) != ENTER) {
             if (!escapeSequenceDetected(key)) {
-                if (key >= 32 && key <= 127) {
+                if (key >= 32 && key <= 126) {
                     line.append(key);
                     System.out.print(key);
                 }
@@ -63,14 +62,12 @@ public class TerminalHandler {
 
     private boolean escapeSequenceDetected(char key) {
         if (key == ESC) {
-            escapeSequence += key;
             escapeSequenceStarted = true;
             return true;
         } else if (escapeSequenceStarted) {
             if (key == '[') {
-                escapeSequence += key;
                 return true;
-            } else if (key != '1') {
+            } else {
                 escapeSequenceStarted = false;
                 return escapeSequenceExecuted(key);
             }
@@ -89,21 +86,19 @@ public class TerminalHandler {
                 break;
             
             case 'C':
+                System.out.print(Cursor.CURSOR_FORWARD);
                 cursorPos++;
                 break;
             
             case 'D':
                 if (cursorPos > 0) cursorPos--;
+                System.out.print(Cursor.CURSOR_FORWARD);
                 break;
         
             default:
                 escapeSequenceStarted = false;
-                escapeSequence = "";
                 return false;
         }
-        escapeSequence += key;
-        System.out.print(escapeSequence);
-        escapeSequence = "";
         return true;
     }
 
