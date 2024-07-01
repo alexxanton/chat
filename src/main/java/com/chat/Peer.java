@@ -198,11 +198,7 @@ public class Peer extends TerminalHandler {
     private void print() {
     }
 
-    private void scrollUpBy(int amount) {
-    }
-
-    private void scrollDownBy(int amount) {
-    }
+    
 
     private void goTo(int id) {
     }

@@ -9,11 +9,13 @@ public class TerminalHandler {
     public final int ENTER = 13;
     public final int BACKSPACE = 127;
     public final int ESC = 27;
+    private int cursorPos = 0;
     private boolean escapeSequenceStarted = false;
     private int width = 0;
     private int height = 0;
     private Terminal terminal;
     private NonBlockingReader reader;
+    private String escapeSequence = "";
     
     public TerminalHandler() {
         try {
@@ -43,7 +45,7 @@ public class TerminalHandler {
         StringBuilder line = new StringBuilder();
         while ((key = (char) readKey()) != ENTER) {
             if (!escapeSequenceDetected(key)) {
-                if (key >= 65 && key <= 122) {
+                if (key >= 32 && key <= 127) {
                     line.append(key);
                     System.out.print(key);
                 }
@@ -61,12 +63,14 @@ public class TerminalHandler {
 
     private boolean escapeSequenceDetected(char key) {
         if (key == ESC) {
+            escapeSequence += key;
             escapeSequenceStarted = true;
             return true;
         } else if (escapeSequenceStarted) {
             if (key == '[') {
+                escapeSequence += key;
                 return true;
-            } else {
+            } else if (key != '1') {
                 escapeSequenceStarted = false;
                 return escapeSequenceExecuted(key);
             }
@@ -77,22 +81,36 @@ public class TerminalHandler {
     private boolean escapeSequenceExecuted(char key) {
         switch (key) {
             case 'A':
-                System.out.print(Cursor.CURSOR_UP);
+                scrollUpBy(1);
                 break;
+                
             case 'B':
-                
+                scrollDownBy(1);
                 break;
+            
             case 'C':
-                
+                cursorPos++;
                 break;
+            
             case 'D':
-                
+                if (cursorPos > 0) cursorPos--;
                 break;
         
             default:
+                escapeSequenceStarted = false;
+                escapeSequence = "";
                 return false;
         }
+        escapeSequence += key;
+        System.out.print(escapeSequence);
+        escapeSequence = "";
         return true;
+    }
+
+    public void scrollUpBy(int amount) {
+    }
+
+    public void scrollDownBy(int amount) {
     }
 
 
