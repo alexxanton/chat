@@ -6,15 +6,16 @@ import org.jline.terminal.TerminalBuilder;
 import org.jline.utils.NonBlockingReader;
 
 public class TerminalHandler {
-    public final int ENTER = 13;
-    public final int BACKSPACE = 127;
-    public final int ESC = 27;
+    private final int ENTER = 13;
+    private final int BACKSPACE = 127;
+    private final int ESC = 27;
     private int cursorPos = 0;
     private boolean escapeSequenceStarted = false;
     private int width = 0;
     private int height = 0;
     private Terminal terminal;
     private NonBlockingReader reader;
+    private StringBuilder line;
     
     public TerminalHandler() {
         try {
@@ -30,9 +31,9 @@ public class TerminalHandler {
 
     // KEY READER
 
-    public int readKey() {
+    private char readKey() {
         try {
-            return reader.read();
+            return (char) reader.read();
         } catch (IOException e) {
             e.printStackTrace();
             return 0;
@@ -41,18 +42,24 @@ public class TerminalHandler {
 
     public String readKeys() {
         char key;
-        StringBuilder line = new StringBuilder();
-        while ((key = (char) readKey()) != ENTER) {
+        line = new StringBuilder();
+        while ((key = readKey()) != ENTER) {
             if (!escapeSequenceDetected(key)) {
                 if (key >= 32 && key <= 126) {
-                    line.append(key);
+                    line.insert(cursorPos, key);
+                    cursorPos++;
                     System.out.print(key);
                 }
                 else {
-                    if (key == BACKSPACE) System.out.print((Cursor.CURSOR_BACKWARD));
+                    if (key == BACKSPACE) {
+                        cursorPos--;
+                        line.deleteCharAt(cursorPos);
+                        System.out.print((Cursor.CURSOR_BACKWARD));
+                    }
                 }
             }
         }
+        cursorPos = 0;
         System.out.print("\n");
         return line.toString();
     }
@@ -86,13 +93,17 @@ public class TerminalHandler {
                 break;
             
             case 'C':
-                System.out.print(Cursor.CURSOR_FORWARD);
-                cursorPos++;
+                if (cursorPos < line.length()) {
+                    cursorPos++;
+                    System.out.print(Cursor.CURSOR_FORWARD);
+                }
                 break;
             
             case 'D':
-                if (cursorPos > 0) cursorPos--;
-                System.out.print(Cursor.CURSOR_FORWARD);
+                if (cursorPos > 0) {
+                    cursorPos--;
+                    System.out.print(Cursor.CURSOR_BACKWARD);
+                }
                 break;
         
             default:

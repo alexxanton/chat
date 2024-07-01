@@ -138,11 +138,11 @@ public class Peer extends TerminalHandler {
     private boolean keywordDetected(String str) {
         String line = str.toLowerCase().replaceAll("\\s", "");
         switch (line) {
-            case "exit"  : loop = false;        break;
+            case "quit"  : loop = false;        break;
             case "msg"   : msgMode = true;      break;
             case "."     : msgMode = false;     break;
             case "del"   : msgMode = false;     break;
-            case "search": searchMode = true;   break;
+            case "find"  : searchMode = true;   break;
             case "end"   : searchMode = false;  break;
             case "cancel": searchMode = false;  break;
             case "print" : print();             break;
