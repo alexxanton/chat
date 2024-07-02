@@ -136,7 +136,7 @@ public class Peer extends TerminalHandler {
     // KEYWORDS
 
     private boolean keywordDetected(String str) {
-        String line = str.toLowerCase().replaceAll("\\s", "");
+        String line = str.toLowerCase().replaceAll("^\\s*|\\s*$", "");
         switch (line) {
             case "quit"  : loop = false;        break;
             case "msg"   : msgMode = true;      break;
@@ -148,7 +148,7 @@ public class Peer extends TerminalHandler {
             case "print" : print();             break;
             case "count" : displayCount();      break;
             default:
-                if (line.matches("^(goto|up|down|dwn|rm)\\d*$")) {
+                if (line.matches("^(goto|up|down|dwn|rm)\\s*\\d*$")) {
                     splitAndExecuteCommand(line);
                     return true;
                 }
@@ -157,7 +157,8 @@ public class Peer extends TerminalHandler {
         return true;
     }
 
-    private void splitAndExecuteCommand(String line) {
+    private void splitAndExecuteCommand(String str) {
+        String line = str.replaceAll("\\s", "");
         String[] splits = line.split("(?<=\\D)(?=\\d)");
         int num = 1;
         int id = count(); // defaults to last message
@@ -194,8 +195,6 @@ public class Peer extends TerminalHandler {
 
     private void print() {
     }
-
-    
 
     private void goTo(int id) {
     }

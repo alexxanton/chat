@@ -52,7 +52,7 @@ public class TerminalHandler {
                     printLineAfterCursor();
                 }
                 else {
-                    if (key == BACKSPACE) {
+                    if (key == BACKSPACE && cursorPos > 0) {
                         cursorPos--;
                         line.deleteCharAt(cursorPos);
                         System.out.print(Cursor.CURSOR_BACKWARD);
