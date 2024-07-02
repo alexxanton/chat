@@ -49,12 +49,14 @@ public class TerminalHandler {
                     line.insert(cursorPos, key);
                     cursorPos++;
                     System.out.print(key);
+                    printLineAfterCursor();
                 }
                 else {
                     if (key == BACKSPACE) {
                         cursorPos--;
                         line.deleteCharAt(cursorPos);
-                        System.out.print((Cursor.CURSOR_BACKWARD));
+                        System.out.print(Cursor.CURSOR_BACKWARD);
+                        printLineAfterCursor();
                     }
                 }
             }
@@ -62,6 +64,21 @@ public class TerminalHandler {
         cursorPos = 0;
         System.out.print("\n");
         return line.toString();
+    }
+
+    private void printLineAfterCursor() {
+        System.out.print(
+            Cursor.HIDE_CURSOR +
+            Cursor.SAVE_CURSOR_POSITION
+        );
+        for (int i = cursorPos; i < line.length(); i++) {
+            System.out.print(line.charAt(i));
+        }
+        System.out.print(
+            Cursor.CLEAR_LINE_AFTER_CURSOR +
+            Cursor.RESTORE_CURSOR_POSITION +
+            Cursor.SHOW_CURSOR
+        );
     }
 
 

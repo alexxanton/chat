@@ -88,7 +88,7 @@ public class Peer extends TerminalHandler {
     private void displayArrows() {
         String arrows = ">> ";
         if (msgMode) {
-            arrows = "";
+            arrows = "...";
         } else if (searchMode) {
             arrows= "?> ";
         }
@@ -140,7 +140,7 @@ public class Peer extends TerminalHandler {
         switch (line) {
             case "quit"  : loop = false;        break;
             case "msg"   : msgMode = true;      break;
-            case "."     : msgMode = false;     break;
+            case "send"  : msgMode = false;     break;
             case "del"   : msgMode = false;     break;
             case "find"  : searchMode = true;   break;
             case "end"   : searchMode = false;  break;
