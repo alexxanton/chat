@@ -20,10 +20,11 @@ public class Peer extends TerminalHandler {
 
 
     public void connect() {
-        System.out.println(Cursor.SHOW_CURSOR);
+        System.out.println(SHOW_CURSOR);
         ipAssign();
         startClient();
         startServer();
+        handleScreenResize();
     }
 
 
@@ -101,7 +102,7 @@ public class Peer extends TerminalHandler {
         } catch (IOException e) {
             System.err.println(e.getMessage() + ".");
         }
-        System.out.print(Cursor.SHOW_CURSOR);
+        System.out.print(SHOW_CURSOR);
     }
 
 
@@ -127,6 +128,18 @@ public class Peer extends TerminalHandler {
                     if (connected) System.err.println("Couldn't connect to server. " + e.getMessage() + ".");
                     else if (!loadingAnimationStarted) startLoadingAnimation();
                 }
+            }
+        });
+        thread.start();
+    }
+
+    public void handleScreenResize() {
+        Thread thread = new Thread(() -> {
+            while (loop) {
+                if (screenResized()) {
+                    adjustScreen();
+                }
+                threadSleep(100);
             }
         });
         thread.start();
@@ -209,21 +222,21 @@ public class Peer extends TerminalHandler {
         loadingAnimationStarted = true;
         Thread loadingAnimation = new Thread(() -> {
             int index = 0;
-            System.out.print(Cursor.HIDE_CURSOR);
+            System.out.print(HIDE_CURSOR);
             while (!connected) {
-                System.out.print(Cursor.CHANGE_COLUMN);
+                System.out.print(MOVE_CURSOR_TO_1ST_COLUMN);
                 if (index > 3) index = 0;
                 System.out.print("Couldn't connect to server. Retrying" + ".".repeat(index));
-                System.out.print(Cursor.CLEAR_LINE_AFTER_CURSOR);
+                System.out.print(CLEAR_LINE_AFTER_CURSOR);
                 index++;
                 threadSleep(300);
             }
-            System.out.print(Cursor.SHOW_CURSOR);
+            System.out.print(SHOW_CURSOR);
         });
         loadingAnimation.start();
     }
 
-    private void threadSleep(int time) {
+    public void threadSleep(int time) {
         try {
             Thread.sleep(time);
         } catch (InterruptedException e) {

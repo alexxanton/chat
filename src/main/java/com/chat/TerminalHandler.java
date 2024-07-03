@@ -5,18 +5,19 @@ import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import org.jline.utils.NonBlockingReader;
 
-public class TerminalHandler {
+public class TerminalHandler extends Cursor {
+    private final int ESC = 27;
     private final int ENTER = 13;
     private final int BACKSPACE = 127;
-    private final int ESC = 27;
-    private int cursorPos = 0;
-    private boolean escapeSequenceStarted = false;
     private int width = 0;
     private int height = 0;
+    private int cursorPos = 0;
     private Terminal terminal;
-    private NonBlockingReader reader;
     private StringBuilder line;
+    private NonBlockingReader reader;
+    private boolean sequenceStarted = false;
     
+
     public TerminalHandler() {
         try {
             terminal = TerminalBuilder.builder().system(true).build();
@@ -55,7 +56,7 @@ public class TerminalHandler {
                     if (key == BACKSPACE && cursorPos > 0) {
                         cursorPos--;
                         line.deleteCharAt(cursorPos);
-                        System.out.print(Cursor.CURSOR_BACKWARD);
+                        System.out.print(CURSOR_BACKWARD);
                         printLineAfterCursor();
                     }
                 }
@@ -67,18 +68,11 @@ public class TerminalHandler {
     }
 
     private void printLineAfterCursor() {
-        System.out.print(
-            Cursor.HIDE_CURSOR +
-            Cursor.SAVE_CURSOR_POSITION
-        );
+        System.out.print(HIDE_CURSOR + SAVE_CURSOR_POSITION);
         for (int i = cursorPos; i < line.length(); i++) {
             System.out.print(line.charAt(i));
         }
-        System.out.print(
-            Cursor.CLEAR_LINE_AFTER_CURSOR +
-            Cursor.RESTORE_CURSOR_POSITION +
-            Cursor.SHOW_CURSOR
-        );
+        System.out.print(CLEAR_LINE_AFTER_CURSOR + RESTORE_CURSOR_POSITION + SHOW_CURSOR);
     }
 
 
@@ -86,20 +80,24 @@ public class TerminalHandler {
 
     private boolean escapeSequenceDetected(char key) {
         if (key == ESC) {
-            escapeSequenceStarted = true;
+            sequenceStarted = true;
             return true;
-        } else if (escapeSequenceStarted) {
-            if (key == '[') {
+        } else if (sequenceStarted) {
+            if (isEscapeCharacter(key)) {
                 return true;
             } else {
-                escapeSequenceStarted = false;
-                return escapeSequenceExecuted(key);
+                sequenceStarted = false;
+                return sequenceExecuted(key);
             }
         }
         return false;
     }
 
-    private boolean escapeSequenceExecuted(char key) {
+    private boolean isEscapeCharacter(char key) {
+        return key == '[' || key == ';' || key == '1' || key == '3' || (key >= '5' && key <= '8');
+    }
+
+    private boolean sequenceExecuted(char key) {
         switch (key) {
             case 'A':
                 scrollUpBy(1);
@@ -112,19 +110,18 @@ public class TerminalHandler {
             case 'C':
                 if (cursorPos < line.length()) {
                     cursorPos++;
-                    System.out.print(Cursor.CURSOR_FORWARD);
+                    System.out.print(CURSOR_FORWARD);
                 }
                 break;
             
             case 'D':
                 if (cursorPos > 0) {
                     cursorPos--;
-                    System.out.print(Cursor.CURSOR_BACKWARD);
+                    System.out.print(CURSOR_BACKWARD);
                 }
                 break;
         
             default:
-                escapeSequenceStarted = false;
                 return false;
         }
         return true;
@@ -138,12 +135,12 @@ public class TerminalHandler {
 
 
     // SCREEN
-    
-    public boolean resized() {
+
+    public boolean screenResized() {
         return width != terminal.getWidth() || height != terminal.getHeight();
     }
     
-    public void adjust() {
+    public void adjustScreen() {
         width = terminal.getWidth();
         height = terminal.getHeight();
         // System.out.println(width + "x" + height);
