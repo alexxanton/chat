@@ -12,7 +12,6 @@ public class Peer extends TerminalHandler {
     private final int PORT = 3000;
     private String ipAddress = "";
     private boolean connected = false;
-    private boolean msgMode = false;
     private boolean searchMode = false;
     private boolean loadingAnimationStarted = false;
     private ArrayList<String> msgList = new ArrayList<>();
@@ -20,7 +19,7 @@ public class Peer extends TerminalHandler {
 
     public void connect() {
         clearScreen();
-        moveCursorTo(getHeight(), 0);
+        moveCursorTo(getScreenHeight(), 1);
         ipAssign();
         startClient();
         startServer();
@@ -64,8 +63,11 @@ public class Peer extends TerminalHandler {
                         String msg = readKeys();
 
                         if (!keywordDetected(msg)) {
-                            if (!(msgMode || searchMode)) {
+                            if (!searchMode) {
                                 msgList.add(msg);
+                                moveCursorTo(1, getScreenWidth() / 2);
+                                System.out.println(msg);
+                                moveCursorTo(getScreenHeight(), 1);
                                 output.println(msg);
                             }
                         }
@@ -78,6 +80,7 @@ public class Peer extends TerminalHandler {
                     }
                 }
                 close(server);
+                clearScreen();
             }
             catch (IOException e) {
                 System.err.println("Couldn't connect to client. " + e.getMessage() + ".");
@@ -88,9 +91,7 @@ public class Peer extends TerminalHandler {
 
     private void displayArrows() {
         String arrows = ">> ";
-        if (msgMode) {
-            arrows = "...";
-        } else if (searchMode) {
+        if (searchMode) {
             arrows= "?> ";
         }
         System.out.print(arrows);
@@ -118,7 +119,9 @@ public class Peer extends TerminalHandler {
                     String msg = input.readLine();
                     if (msg != null) {
                         msgList.add(msg);
+                        moveCursorTo(1, 1);
                         System.out.println(msg);
+                        moveCursorTo(getScreenHeight(), 1);
                     }
                     socket.close();
                     connected = true;
@@ -140,13 +143,9 @@ public class Peer extends TerminalHandler {
         String line = str.toLowerCase().replaceAll("^\\s*|\\s*$", "");
         switch (line) {
             case "quit"  : loop = false;        break;
-            case "msg"   : msgMode = true;      break;
-            case "send"  : msgMode = false;     break;
-            case "del"   : msgMode = false;     break;
             case "find"  : searchMode = true;   break;
-            case "end"   : searchMode = false;  break;
+            case "done"  : searchMode = false;  break;
             case "cancel": searchMode = false;  break;
-            case "print" : print();             break;
             case "count" : displayCount();      break;
             default:
                 if (line.matches("^(goto|up|down|dwn|rm)\\s*\\d*$")) {
@@ -192,9 +191,6 @@ public class Peer extends TerminalHandler {
 
     private int count() {
         return msgList.size();
-    }
-
-    private void print() {
     }
 
     private void goTo(int id) {

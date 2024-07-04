@@ -54,7 +54,7 @@ public class TerminalHandler extends Cursor {
                     printLineAfterCursor();
                 }
                 else {
-                    if (key == BACKSPACE && cursorPos > 0) {
+                    if ((key == BACKSPACE || key == 8) && cursorPos > 0) {
                         cursorPos--;
                         line.deleteCharAt(cursorPos);
                         System.out.print(CURSOR_BACKWARD);
@@ -64,7 +64,8 @@ public class TerminalHandler extends Cursor {
             }
         }
         cursorPos = 0;
-        System.out.print("\n");
+        moveCursorTo(getScreenHeight(), 0);
+        System.out.print(CLEAR_LINE_AFTER_CURSOR);
         return line.toString();
     }
 
@@ -95,7 +96,7 @@ public class TerminalHandler extends Cursor {
     }
 
     private boolean isEscapeCharacter(char key) {
-        return key == '[' || key == ';' || key == '1' || key == '3' || (key >= '5' && key <= '8');
+        return key == '[' || key == ';' || key == '1' || key == '3' || (key >= '5' && key <= '8') || key == 'O';
     }
 
     private boolean sequenceExecuted(char key) {
@@ -147,11 +148,11 @@ public class TerminalHandler extends Cursor {
         // System.out.println(width + "x" + height);
     }
     
-    public int getWidth() {
+    public int getScreenWidth() {
         return terminal.getWidth();
     }
 
-    public int getHeight() {
+    public int getScreenHeight() {
         return terminal.getHeight();
     }
 
@@ -168,20 +169,12 @@ public class TerminalHandler extends Cursor {
     }
 
     public void clearScreen() {
-        String shell;
-        String flag;
-        String command;
         try {
             if (System.getProperty("os.name").startsWith("Windows")) {
-                shell = "cmd";
-                flag = "/c";
-                command = "cls";
+                new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
             } else {
-                shell = "bash";
-                flag = "-c";
-                command = "clear";
+                new ProcessBuilder("bash", "-c", "clear").inheritIO().start().waitFor();
             }
-            new ProcessBuilder(shell, flag, command).inheritIO().start().waitFor();
         }
         catch (IOException | InterruptedException e) {
             e.printStackTrace();
