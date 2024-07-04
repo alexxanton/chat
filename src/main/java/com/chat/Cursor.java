@@ -20,4 +20,8 @@ public class Cursor {
     public static final String MOVE_CURSOR_TO_1ST_COLUMN = "\033[G";
     public static final String CHANGE_CURSOR_COLOR_RED = "\033]12;red\007";
     public static final String CHANGE_CURSOR_COLOR_WHITE = "\033]12;white\007";
+
+    public static final void moveCursorTo(int row, int col) {
+        System.out.print("\033[" + row + ";" + col + "H");
+    }
 }

@@ -182,7 +182,8 @@ public class TerminalHandler extends Cursor {
                 command = "clear";
             }
             new ProcessBuilder(shell, flag, command).inheritIO().start().waitFor();
-        } catch (IOException | InterruptedException e) {
+        }
+        catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
     }

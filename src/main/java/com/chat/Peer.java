@@ -20,6 +20,7 @@ public class Peer extends TerminalHandler {
 
     public void connect() {
         clearScreen();
+        moveCursorTo(getHeight(), 0);
         ipAssign();
         startClient();
         startServer();
