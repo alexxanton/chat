@@ -18,8 +18,6 @@ public class Peer extends TerminalHandler {
 
 
     public void connect() {
-        clearScreen();
-        moveCursorTo(getScreenHeight(), 1);
         ipAssign();
         startClient();
         startServer();
@@ -41,8 +39,8 @@ public class Peer extends TerminalHandler {
     }
 
     private boolean ipValidation() {
-        String regex = "^((25[0-5]|(2[0-4]|1[0-9]|[1-9]|)[0-9])(\\.(?!$)|$)){4}$";
-        if (ipAddress.matches(regex) || ipAddress.isEmpty()) {
+        String regex = "^\\s*((25[0-5]|(2[0-4]|1[0-9]|[1-9]|)[0-9])(\\.(?!$)|$)){4}$";
+        if (ipAddress.matches(regex)) {
             return true;
         }
         return false;
@@ -65,9 +63,9 @@ public class Peer extends TerminalHandler {
                         if (!keywordDetected(msg)) {
                             if (!searchMode) {
                                 msgList.add(msg);
-                                moveCursorTo(1, getScreenWidth() / 2);
+                                moveCursorTo(count(), screenWidth() / 2);
                                 System.out.println(msg);
-                                moveCursorTo(getScreenHeight(), 1);
+                                moveCursorTo(screenHeight(), 1);
                                 output.println(msg);
                             }
                         }
@@ -119,9 +117,9 @@ public class Peer extends TerminalHandler {
                     String msg = input.readLine();
                     if (msg != null) {
                         msgList.add(msg);
-                        moveCursorTo(1, 1);
+                        moveCursorTo(count(), 1);
                         System.out.println(msg);
-                        moveCursorTo(getScreenHeight(), 1);
+                        moveCursorTo(screenHeight(), 1);
                     }
                     socket.close();
                     connected = true;

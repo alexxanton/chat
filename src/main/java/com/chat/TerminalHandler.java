@@ -9,6 +9,8 @@ public class TerminalHandler extends Cursor {
     private final int ESC = 27;
     private final int ENTER = 13;
     private final int BACKSPACE = 127;
+    private final int WIN_BACKSPACE = 8;
+    private int scroll = 0;
     private int width = 0;
     private int height = 0;
     private int cursorPos = 0;
@@ -24,6 +26,8 @@ public class TerminalHandler extends Cursor {
             terminal = TerminalBuilder.builder().system(true).build();
             reader = terminal.reader();
             terminal.enterRawMode();
+            clearScreen();
+            moveCursorTo(screenHeight(), 1);
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -45,16 +49,17 @@ public class TerminalHandler extends Cursor {
     public String readKeys() {
         char key;
         line = new StringBuilder();
-        while ((key = readKey()) != ENTER) {
+        while ((key = readKey()) != ENTER || line.isEmpty()) {
             if (!escapeSequenceDetected(key)) {
                 if (key >= 32 && key <= 126) {
                     line.insert(cursorPos, key);
+                    if (key == '1') line.append("27.0.0.1"); // dev cheat TODO: remove
                     cursorPos++;
                     System.out.print(key);
                     printLineAfterCursor();
                 }
                 else {
-                    if ((key == BACKSPACE || key == 8) && cursorPos > 0) {
+                    if (backspacePressed(key) && cursorPos > 0) {
                         cursorPos--;
                         line.deleteCharAt(cursorPos);
                         System.out.print(CURSOR_BACKWARD);
@@ -64,9 +69,13 @@ public class TerminalHandler extends Cursor {
             }
         }
         cursorPos = 0;
-        moveCursorTo(getScreenHeight(), 0);
+        moveCursorTo(screenHeight(), 1);
         System.out.print(CLEAR_LINE_AFTER_CURSOR);
         return line.toString();
+    }
+
+    private boolean backspacePressed(int key) {
+        return key == BACKSPACE || key == WIN_BACKSPACE;
     }
 
     private void printLineAfterCursor() {
@@ -148,11 +157,11 @@ public class TerminalHandler extends Cursor {
         // System.out.println(width + "x" + height);
     }
     
-    public int getScreenWidth() {
+    public int screenWidth() {
         return terminal.getWidth();
     }
 
-    public int getScreenHeight() {
+    public int screenHeight() {
         return terminal.getHeight();
     }
 
