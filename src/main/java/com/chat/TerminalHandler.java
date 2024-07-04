@@ -16,6 +16,7 @@ public class TerminalHandler extends Cursor {
     private StringBuilder line;
     private NonBlockingReader reader;
     private boolean sequenceStarted = false;
+    public boolean loop = true;
     
 
     public TerminalHandler() {
@@ -152,5 +153,45 @@ public class TerminalHandler extends Cursor {
 
     public int getHeight() {
         return terminal.getHeight();
+    }
+
+    public void handleScreenResize() {
+        Thread thread = new Thread(() -> {
+            while (loop) {
+                if (screenResized()) {
+                    adjustScreen();
+                }
+                threadSleep(100);
+            }
+        });
+        thread.start();
+    }
+
+    public void clearScreen() {
+        String shell;
+        String flag;
+        String command;
+        try {
+            if (System.getProperty("os.name").startsWith("Windows")) {
+                shell = "cmd";
+                flag = "/c";
+                command = "cls";
+            } else {
+                shell = "bash";
+                flag = "-c";
+                command = "clear";
+            }
+            new ProcessBuilder(shell, flag, command).inheritIO().start().waitFor();
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void threadSleep(int time) {
+        try {
+            Thread.sleep(time);
+        } catch (InterruptedException e) {
+            System.err.println(e.getMessage() + ".");
+        }
     }
 }

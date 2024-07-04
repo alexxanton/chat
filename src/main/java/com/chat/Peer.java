@@ -11,7 +11,6 @@ import java.util.ArrayList;
 public class Peer extends TerminalHandler {
     private final int PORT = 3000;
     private String ipAddress = "";
-    private boolean loop = true;
     private boolean connected = false;
     private boolean msgMode = false;
     private boolean searchMode = false;
@@ -20,7 +19,7 @@ public class Peer extends TerminalHandler {
 
 
     public void connect() {
-        System.out.println(SHOW_CURSOR);
+        clearScreen();
         ipAssign();
         startClient();
         startServer();
@@ -133,18 +132,6 @@ public class Peer extends TerminalHandler {
         thread.start();
     }
 
-    public void handleScreenResize() {
-        Thread thread = new Thread(() -> {
-            while (loop) {
-                if (screenResized()) {
-                    adjustScreen();
-                }
-                threadSleep(100);
-            }
-        });
-        thread.start();
-    }
-
 
     // KEYWORDS
 
@@ -234,13 +221,5 @@ public class Peer extends TerminalHandler {
             System.out.print(SHOW_CURSOR);
         });
         loadingAnimation.start();
-    }
-
-    public void threadSleep(int time) {
-        try {
-            Thread.sleep(time);
-        } catch (InterruptedException e) {
-            System.err.println(e.getMessage() + ".");
-        }
     }
 }

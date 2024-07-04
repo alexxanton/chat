@@ -1,6 +1,10 @@
 package com.chat;
 
 public class Cursor {
+    public Cursor() {
+        System.out.print(SHOW_CURSOR);
+    }
+    
     public static final String CURSOR_UP = "\033[A";
     public static final String CURSOR_DOWN = "\033[B";
     public static final String CURSOR_FORWARD = "\033[C";
