@@ -28,6 +28,7 @@ public class TerminalHandler extends Cursor {
             terminal.enterRawMode();
             clearScreen();
             moveCursorTo(screenHeight(), 1);
+            handleScreenResize();
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -53,7 +54,7 @@ public class TerminalHandler extends Cursor {
             if (!escapeSequenceDetected(key)) {
                 if (key >= 32 && key <= 126) {
                     line.insert(cursorPos, key);
-                    if (key == '1') line.append("27.0.0.1"); // dev cheat TODO: remove
+                    // if (key == '1') line.append("27.0.0.1"); // dev cheat TODO: remove
                     cursorPos++;
                     System.out.print(key);
                     printLineAfterCursor();

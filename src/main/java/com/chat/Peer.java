@@ -21,7 +21,6 @@ public class Peer extends TerminalHandler {
         ipAssign();
         startClient();
         startServer();
-        handleScreenResize();
     }
 
 
@@ -39,8 +38,8 @@ public class Peer extends TerminalHandler {
     }
 
     private boolean ipValidation() {
-        String regex = "^\\s*((25[0-5]|(2[0-4]|1[0-9]|[1-9]|)[0-9])(\\.(?!$)|$)){4}$";
-        if (ipAddress.matches(regex)) {
+        ipAddress = ipAddress.replaceAll("\\s", "");
+        if (ipAddress.matches("^((25[0-5]|(2[0-4]|1[0-9]|[1-9]|)[0-9])(\\.(?!$)|$)){4}$")) {
             return true;
         }
         return false;
@@ -90,7 +89,7 @@ public class Peer extends TerminalHandler {
     private void displayArrows() {
         String arrows = ">> ";
         if (searchMode) {
-            arrows= "?> ";
+            arrows = "?> ";
         }
         System.out.print(arrows);
     }
@@ -142,7 +141,6 @@ public class Peer extends TerminalHandler {
         switch (line) {
             case "quit"  : loop = false;        break;
             case "find"  : searchMode = true;   break;
-            case "done"  : searchMode = false;  break;
             case "cancel": searchMode = false;  break;
             case "count" : displayCount();      break;
             default:
