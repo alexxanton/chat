@@ -10,6 +10,7 @@ public class TerminalHandler extends Cursor {
     private final int ENTER = 13;
     private final int BACKSPACE = 127;
     private final int WIN_BACKSPACE = 8;
+    private final int LIMIT = 250;
     private int width = 0;
     private int height = 0;
     private int cursorPos = 0;
@@ -52,23 +53,20 @@ public class TerminalHandler extends Cursor {
         line = new StringBuilder();
         while ((key = readKey()) != ENTER || line.isEmpty()) {
             if (!escapeSequenceDetected(key)) {
-                if (key >= 32 && key <= 126 && line.length() <= 100) {
+                if (isPrintableASCII(key) && line.length() < LIMIT) {
                     line.insert(cursorPos, key);
                     if (key == '1') line.append("27.0.0.1"); // dev cheat TODO: remove
                     cursorPos++;
                     System.out.print(key);
                     printLineAfterCursor();
-                    displayCharCount();
                 }
-                else {
-                    if (backspacePressed(key) && cursorPos > 0) {
-                        cursorPos--;
-                        line.deleteCharAt(cursorPos);
-                        System.out.print(CURSOR_BACKWARD);
-                        printLineAfterCursor();
-                        displayCharCount();
-                    }
+                else if (backspacePressed(key) && cursorPos > 0) {
+                    cursorPos--;
+                    line.deleteCharAt(cursorPos);
+                    System.out.print(CURSOR_BACKWARD);
+                    printLineAfterCursor();
                 }
+                displayCharCount();
             }
         }
         cursorPos = 0;
@@ -78,11 +76,16 @@ public class TerminalHandler extends Cursor {
     }
 
     private void displayCharCount() {
+        String nums = Integer.toString(line.length());
         if (!ipAssigned) return;
-        System.out.print(SAVE_CURSOR_POSITION);
-        moveCursorTo(screenHeight() - 1, screenWidth() - 7);
-        System.out.print(line.length() + "/100");
-        System.out.print(RESTORE_CURSOR_POSITION);
+        System.out.print(SAVE_CURSOR_POSITION + HIDE_CURSOR);
+        moveCursorTo(screenHeight() - 1, screenWidth() - 4 - nums.length());
+        System.out.print(line.length() + "/" + LIMIT);
+        System.out.print(RESTORE_CURSOR_POSITION + SHOW_CURSOR);
+    }
+
+    private boolean isPrintableASCII(char key) {
+        return key >= 32 && key <= 126;
     }
 
     private boolean backspacePressed(int key) {
