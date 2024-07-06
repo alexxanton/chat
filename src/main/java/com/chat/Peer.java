@@ -32,13 +32,13 @@ public class Peer extends TerminalHandler {
         while (!valid) {
             ipAddress = readKeys();
             valid = ipValidation();
-            if (valid) return;
-            System.out.print("Invalid IP, try again: ");
+            if (!valid) System.out.print("Invalid IP, try again: ");
         }
+        ipAssigned = true;
     }
 
     private boolean ipValidation() {
-        ipAddress = ipAddress.replaceAll("\\s", "");
+        ipAddress = ipAddress.replaceAll("^\\s*|\\s*$", "");
         if (ipAddress.matches("^((25[0-5]|(2[0-4]|1[0-9]|[1-9]|)[0-9])(\\.(?!$)|$)){4}$")) {
             return true;
         }
@@ -182,7 +182,9 @@ public class Peer extends TerminalHandler {
     // COMMANDS
 
     private void displayCount() {
-        System.out.println(count());
+        System.out.print(SAVE_CURSOR_POSITION + CURSOR_UP + MOVE_CURSOR_TO_1ST_COLUMN);
+        System.out.print("Messages: " + count());
+        System.out.print(RESTORE_CURSOR_POSITION);
     }
 
     private int count() {
