@@ -51,20 +51,13 @@ public class TerminalHandler extends Cursor {
     public String readKeys() {
         char key;
         line = new StringBuilder();
+        displayCharCount();
         while ((key = readKey()) != ENTER || line.isEmpty()) {
             if (!escapeSequenceDetected(key)) {
                 if (isPrintableASCII(key) && line.length() < LIMIT) {
-                    line.insert(cursorPos, key);
-                    if (key == '1') line.append("27.0.0.1"); // dev cheat TODO: remove
-                    cursorPos++;
-                    System.out.print(key);
-                    printLineAfterCursor();
-                }
-                else if (backspacePressed(key) && cursorPos > 0) {
-                    cursorPos--;
-                    line.deleteCharAt(cursorPos);
-                    System.out.print(CURSOR_BACKWARD);
-                    printLineAfterCursor();
+                    typeKey(key);
+                } else if (backspacePressed(key) && cursorPos > 0) {
+                    deleteKey(key);
                 }
                 displayCharCount();
             }
@@ -75,13 +68,19 @@ public class TerminalHandler extends Cursor {
         return line.toString();
     }
 
-    private void displayCharCount() {
-        String nums = Integer.toString(line.length());
-        if (!ipAssigned) return;
-        System.out.print(SAVE_CURSOR_POSITION + HIDE_CURSOR);
-        moveCursorTo(screenHeight() - 1, screenWidth() - 4 - nums.length());
-        System.out.print(line.length() + "/" + LIMIT);
-        System.out.print(RESTORE_CURSOR_POSITION + SHOW_CURSOR);
+    private void typeKey(char key) {
+        line.insert(cursorPos, key);
+        if (key == '1') line.append("27.0.0.1"); // dev cheat TODO: remove
+        cursorPos++;
+        System.out.print(key);
+        printLineAfterCursor();
+    }
+
+    private void deleteKey(char key) {
+        cursorPos--;
+        line.deleteCharAt(cursorPos);
+        System.out.print(CURSOR_BACKWARD);
+        printLineAfterCursor();
     }
 
     private boolean isPrintableASCII(char key) {
@@ -98,6 +97,15 @@ public class TerminalHandler extends Cursor {
             System.out.print(line.charAt(i));
         }
         System.out.print(CLEAR_LINE_AFTER_CURSOR + RESTORE_CURSOR_POSITION + SHOW_CURSOR);
+    }
+
+    private void displayCharCount() {
+        if (!ipAssigned) return; // when prompting the IP, char count isn't taken into account
+        String nums = Integer.toString(line.length());
+        System.out.print(SAVE_CURSOR_POSITION + HIDE_CURSOR);
+        moveCursorTo(screenHeight() - 1, screenWidth() - 4 - nums.length());
+        System.out.print(line.length() + "/" + LIMIT);
+        System.out.print(RESTORE_CURSOR_POSITION + SHOW_CURSOR);
     }
 
 
@@ -198,8 +206,7 @@ public class TerminalHandler extends Cursor {
             } else {
                 new ProcessBuilder("bash", "-c", "clear").inheritIO().start().waitFor();
             }
-        }
-        catch (IOException | InterruptedException e) {
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
     }
