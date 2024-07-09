@@ -19,16 +19,18 @@ public class Peer extends TerminalHandler {
 
     public void connect() {
         ipAssign();
-        startClient();
         startServer();
+        handleScreenResize();
+        startClient();
     }
 
 
     // IP ADDRESS
 
     private void ipAssign() {
-        System.out.print("Enter the IP: ");
         boolean valid = false;
+        moveCursorTo(screenHeight(), 1);
+        System.out.print("Enter the IP: ");
         while (!valid) {
             ipAddress = readKeys();
             valid = ipValidation();
@@ -87,6 +89,7 @@ public class Peer extends TerminalHandler {
     }
 
     private void displayArrows() {
+        moveCursorTo(screenHeight(), 1);
         String arrows = ">> ";
         if (searchMode) {
             arrows = "?> ";

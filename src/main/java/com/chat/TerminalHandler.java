@@ -28,8 +28,6 @@ public class TerminalHandler extends Cursor {
             reader = terminal.reader();
             terminal.enterRawMode();
             clearScreen();
-            moveCursorTo(screenHeight(), 1);
-            handleScreenResize();
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -57,7 +55,7 @@ public class TerminalHandler extends Cursor {
                 if (isPrintableASCII(key) && line.length() < LIMIT) {
                     typeKey(key);
                 } else if (backspacePressed(key) && cursorPos > 0) {
-                    deleteKey(key);
+                    deleteKey();
                 }
                 displayCharCount();
             }
@@ -76,7 +74,7 @@ public class TerminalHandler extends Cursor {
         printLineAfterCursor();
     }
 
-    private void deleteKey(char key) {
+    private void deleteKey() {
         cursorPos--;
         line.deleteCharAt(cursorPos);
         System.out.print(CURSOR_BACKWARD);
@@ -100,7 +98,7 @@ public class TerminalHandler extends Cursor {
     }
 
     private void displayCharCount() {
-        if (!ipAssigned) return; // when prompting the IP, char count isn't taken into account
+        if (!ipAssigned) return; // when prompting the IP, char count isn't displayed
         String nums = Integer.toString(line.length());
         System.out.print(SAVE_CURSOR_POSITION + HIDE_CURSOR);
         moveCursorTo(screenHeight() - 1, screenWidth() - 4 - nums.length());
@@ -176,6 +174,7 @@ public class TerminalHandler extends Cursor {
     public void adjustScreen() {
         width = terminal.getWidth();
         height = terminal.getHeight();
+        clearScreen();
         // System.out.println(width + "x" + height);
     }
     
