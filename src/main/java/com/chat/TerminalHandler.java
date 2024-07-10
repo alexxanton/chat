@@ -5,7 +5,7 @@ import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import org.jline.utils.NonBlockingReader;
 
-public class TerminalHandler extends Cursor {
+public class TerminalHandler {
     private final int ESC = 27;
     private final int ENTER = 13;
     private final int BACKSPACE = 127;
@@ -62,8 +62,8 @@ public class TerminalHandler extends Cursor {
             }
         }
         cursorPos = 0;
-        moveCursorTo(screenHeight(), 1);
-        System.out.print(CLEAR_LINE_AFTER_CURSOR);
+        Cursor.moveCursorTo(screenHeight(), 1);
+        System.out.print(Cursor.CLEAR_LINE_AFTER_CURSOR);
         return line.toString();
     }
 
@@ -88,7 +88,7 @@ public class TerminalHandler extends Cursor {
     private void delete() {
         cursorPos--;
         line.deleteCharAt(cursorPos);
-        System.out.print(CURSOR_BACKWARD);
+        System.out.print(Cursor.CURSOR_BACKWARD);
         printLineAfterCursor();
     }
 
@@ -101,20 +101,20 @@ public class TerminalHandler extends Cursor {
     }
 
     private void printLineAfterCursor() {
-        System.out.print(HIDE_CURSOR + SAVE_CURSOR_POSITION);
+        System.out.print(Cursor.HIDE_CURSOR + Cursor.SAVE_CURSOR_POSITION);
         for (int i = cursorPos; i < line.length(); i++) {
             System.out.print(line.charAt(i));
         }
-        System.out.print(CLEAR_LINE_AFTER_CURSOR + RESTORE_CURSOR_POSITION + SHOW_CURSOR);
+        System.out.print(Cursor.CLEAR_LINE_AFTER_CURSOR + Cursor.RESTORE_CURSOR_POSITION + Cursor.SHOW_CURSOR);
     }
 
     private void displayCharCount() {
         if (!ipAssigned) return; // when prompting the IP, char count isn't displayed
         String nums = Integer.toString(line.length());
-        System.out.print(SAVE_CURSOR_POSITION + HIDE_CURSOR);
-        moveCursorTo(screenHeight() - 1, screenWidth() - 4 - nums.length());
+        System.out.print(Cursor.SAVE_CURSOR_POSITION + Cursor.HIDE_CURSOR);
+        Cursor.moveCursorTo(screenHeight() - 1, screenWidth() - 4 - nums.length());
         System.out.print(line.length() + "/" + LIMIT);
-        System.out.print(RESTORE_CURSOR_POSITION + SHOW_CURSOR);
+        System.out.print(Cursor.RESTORE_CURSOR_POSITION + Cursor.SHOW_CURSOR);
     }
 
 
@@ -152,14 +152,14 @@ public class TerminalHandler extends Cursor {
             case 'C':
                 if (cursorPos < line.length()) {
                     cursorPos++;
-                    System.out.print(CURSOR_FORWARD);
+                    System.out.print(Cursor.CURSOR_FORWARD);
                 }
                 break;
             
             case 'D':
                 if (cursorPos > 0) {
                     cursorPos--;
-                    System.out.print(CURSOR_BACKWARD);
+                    System.out.print(Cursor.CURSOR_BACKWARD);
                 }
                 break;
         

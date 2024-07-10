@@ -6,7 +6,6 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
 
 public class Peer extends TerminalHandler {
     private final int PORT = 3000;
@@ -14,9 +13,8 @@ public class Peer extends TerminalHandler {
     private boolean connected = false;
     private boolean searchMode = false;
     private boolean loadingAnimationStarted = false;
-    private ArrayList<String> msgList = new ArrayList<>();
 
-
+    
     public void connect() {
         ipAssign();
         startServer();
@@ -29,7 +27,7 @@ public class Peer extends TerminalHandler {
 
     private void ipAssign() {
         boolean valid = false;
-        moveCursorTo(screenHeight(), 1);
+        Cursor.moveCursorTo(screenHeight(), 1);
         System.out.print("Enter the IP: ");
         while (!valid) {
             ipAddress = readKeys();
@@ -63,10 +61,10 @@ public class Peer extends TerminalHandler {
 
                         if (!keywordDetected(msg)) {
                             if (!searchMode) {
-                                msgList.add(msg);
-                                moveCursorTo(count(), screenWidth() / 2);
+                                Messages.list.add(msg);
+                                Cursor.moveCursorTo(count(), screenWidth() / 2);
                                 System.out.println(msg);
-                                moveCursorTo(screenHeight(), 1);
+                                Cursor.moveCursorTo(screenHeight(), 1);
                                 output.println(msg);
                             }
                         }
@@ -89,7 +87,7 @@ public class Peer extends TerminalHandler {
     }
 
     private void displayArrows() {
-        moveCursorTo(screenHeight(), 1);
+        Cursor.moveCursorTo(screenHeight(), 1);
         String arrows = ">> ";
         if (searchMode) {
             arrows = "?> ";
@@ -103,7 +101,7 @@ public class Peer extends TerminalHandler {
         } catch (IOException e) {
             System.err.println(e.getMessage() + ".");
         }
-        System.out.print(SHOW_CURSOR);
+        System.out.print(Cursor.SHOW_CURSOR);
     }
 
 
@@ -118,10 +116,10 @@ public class Peer extends TerminalHandler {
                     BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                     String msg = input.readLine();
                     if (msg != null) {
-                        msgList.add(msg);
-                        moveCursorTo(count(), 1);
+                        Messages.list.add(msg);
+                        Cursor.moveCursorTo(count(), 1);
                         System.out.println(msg);
-                        moveCursorTo(screenHeight(), 1);
+                        Cursor.moveCursorTo(screenHeight(), 1);
                     }
                     socket.close();
                     connected = true;
@@ -185,13 +183,13 @@ public class Peer extends TerminalHandler {
     // COMMANDS
 
     private void displayCount() {
-        System.out.print(SAVE_CURSOR_POSITION + CURSOR_UP + MOVE_CURSOR_TO_1ST_COLUMN);
+        System.out.print(Cursor.SAVE_CURSOR_POSITION + Cursor.CURSOR_UP + Cursor.MOVE_CURSOR_TO_1ST_COLUMN);
         System.out.print("Messages: " + count());
-        System.out.print(RESTORE_CURSOR_POSITION);
+        System.out.print(Cursor.RESTORE_CURSOR_POSITION);
     }
 
     private int count() {
-        return msgList.size();
+        return Messages.list.size();
     }
 
     private void goTo(int id) {
@@ -207,16 +205,16 @@ public class Peer extends TerminalHandler {
         loadingAnimationStarted = true;
         Thread loadingAnimation = new Thread(() -> {
             int index = 0;
-            System.out.print(HIDE_CURSOR);
+            System.out.print(Cursor.HIDE_CURSOR);
             while (!connected) {
-                System.out.print(MOVE_CURSOR_TO_1ST_COLUMN);
+                System.out.print(Cursor.MOVE_CURSOR_TO_1ST_COLUMN);
                 if (index > 3) index = 0;
                 System.out.print("Couldn't connect to server. Retrying" + ".".repeat(index));
-                System.out.print(CLEAR_LINE_AFTER_CURSOR);
+                System.out.print(Cursor.CLEAR_LINE_AFTER_CURSOR);
                 index++;
                 threadSleep(300);
             }
-            System.out.print(SHOW_CURSOR);
+            System.out.print(Cursor.SHOW_CURSOR);
         });
         loadingAnimation.start();
     }
