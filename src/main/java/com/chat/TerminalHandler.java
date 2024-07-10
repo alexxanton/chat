@@ -51,11 +51,12 @@ public class TerminalHandler extends Cursor {
         line = new StringBuilder();
         displayCharCount();
         while ((key = readKey()) != ENTER || line.isEmpty()) {
+            devCheat(key); // dev cheat TODO: remove
             if (!escapeSequenceDetected(key)) {
                 if (isPrintableASCII(key) && line.length() < LIMIT) {
-                    typeKey(key);
+                    type(key);
                 } else if (backspacePressed(key) && cursorPos > 0) {
-                    deleteKey();
+                    delete();
                 }
                 displayCharCount();
             }
@@ -66,15 +67,25 @@ public class TerminalHandler extends Cursor {
         return line.toString();
     }
 
-    private void typeKey(char key) {
+    private void devCheat(char key) {
+        if (key == 209) {
+            line.append("192.168.1.114");
+            System.out.print("win");
+        }
+        if (key == 241) {
+            line.append("172.17.24.193");
+            System.out.print("lnx");
+        }
+    }
+
+    private void type(char key) {
         line.insert(cursorPos, key);
-        if (key == '1') line.append("27.0.0.1"); // dev cheat TODO: remove
         cursorPos++;
         System.out.print(key);
         printLineAfterCursor();
     }
 
-    private void deleteKey() {
+    private void delete() {
         cursorPos--;
         line.deleteCharAt(cursorPos);
         System.out.print(CURSOR_BACKWARD);
@@ -162,6 +173,14 @@ public class TerminalHandler extends Cursor {
     }
 
     public void scrollDownBy(int amount) {
+    }
+
+
+    private void getCursorPos() {
+        String cursorPos = terminal.getCursorPosition(null).toString().replaceAll("[^,\\d]", "");
+        String[] positions = cursorPos.split(",");
+        int x = Integer.parseInt(positions[0]);
+        int y = Integer.parseInt(positions[1]);
     }
 
 
