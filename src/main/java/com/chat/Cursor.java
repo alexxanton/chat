@@ -24,4 +24,28 @@ public class Cursor {
     public static final void moveCursorTo(int row, int col) {
         System.out.print("\033[" + row + ";" + col + "H");
     }
+
+    private static void action(String action) { System.out.print(action); }
+
+    public static void forward() { action(CURSOR_FORWARD); }
+    
+    public static void backward() { action(CURSOR_BACKWARD); }
+    
+    public static void disableBlink() { action(DISABLE_BLINK); }
+
+    public static void enableBlink() { action(ENABLE_BLINK); }
+
+    public static void show() { action(SHOW_CURSOR); }
+    
+    public static void hide() { action(HIDE_CURSOR); }
+
+    public static void clearLineAfterCursor() { action(CLEAR_LINE_AFTER_CURSOR); }
+
+    public static void savePosition() { action(HIDE_CURSOR + SAVE_CURSOR_POSITION); }
+
+    public static void restorePosition() { action(SHOW_CURSOR + RESTORE_CURSOR_POSITION); }
+
+    public static void changeColorRed() { action(CHANGE_CURSOR_COLOR_RED); }
+
+    public static void changeColorWhite() { action(CHANGE_CURSOR_COLOR_WHITE); }
 }

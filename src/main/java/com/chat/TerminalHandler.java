@@ -63,7 +63,7 @@ public class TerminalHandler {
         }
         cursorPos = 0;
         Cursor.moveCursorTo(screenHeight(), 1);
-        System.out.print(Cursor.CLEAR_LINE_AFTER_CURSOR);
+        Cursor.clearLineAfterCursor();
         return line.toString();
     }
 
@@ -88,7 +88,7 @@ public class TerminalHandler {
     private void delete() {
         cursorPos--;
         line.deleteCharAt(cursorPos);
-        System.out.print(Cursor.CURSOR_BACKWARD);
+        Cursor.backward();
         printLineAfterCursor();
     }
 
@@ -101,20 +101,21 @@ public class TerminalHandler {
     }
 
     private void printLineAfterCursor() {
-        System.out.print(Cursor.HIDE_CURSOR + Cursor.SAVE_CURSOR_POSITION);
+        Cursor.savePosition();
         for (int i = cursorPos; i < line.length(); i++) {
             System.out.print(line.charAt(i));
         }
-        System.out.print(Cursor.CLEAR_LINE_AFTER_CURSOR + Cursor.RESTORE_CURSOR_POSITION + Cursor.SHOW_CURSOR);
+        Cursor.clearLineAfterCursor();
+        Cursor.restorePosition();
     }
 
     private void displayCharCount() {
         if (!ipAssigned) return; // when prompting the IP, char count isn't displayed
         String nums = Integer.toString(line.length());
-        System.out.print(Cursor.SAVE_CURSOR_POSITION + Cursor.HIDE_CURSOR);
+        Cursor.savePosition();
         Cursor.moveCursorTo(screenHeight() - 1, screenWidth() - 4 - nums.length());
         System.out.print(line.length() + "/" + LIMIT);
-        System.out.print(Cursor.RESTORE_CURSOR_POSITION + Cursor.SHOW_CURSOR);
+        Cursor.restorePosition();
     }
 
 
@@ -152,14 +153,14 @@ public class TerminalHandler {
             case 'C':
                 if (cursorPos < line.length()) {
                     cursorPos++;
-                    System.out.print(Cursor.CURSOR_FORWARD);
+                    Cursor.forward();
                 }
                 break;
             
             case 'D':
                 if (cursorPos > 0) {
                     cursorPos--;
-                    System.out.print(Cursor.CURSOR_BACKWARD);
+                    Cursor.backward();
                 }
                 break;
         
