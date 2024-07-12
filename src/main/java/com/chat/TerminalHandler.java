@@ -1,6 +1,8 @@
 package com.chat;
 
 import java.io.IOException;
+
+import org.jline.terminal.Cursor;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import org.jline.utils.NonBlockingReader;
@@ -10,7 +12,7 @@ public class TerminalHandler {
     private final int ENTER = 13;
     private final int BACKSPACE = 127;
     private final int WIN_BACKSPACE = 8;
-    private final int LIMIT = 250;
+    private final int MAX_LENGTH = 150;
     private int width = 0;
     private int height = 0;
     private int cursorPos = 0;
@@ -20,9 +22,11 @@ public class TerminalHandler {
     private boolean sequenceStarted = false;
     public boolean loop = true;
     public boolean ipAssigned = false;
-    
+    public CursorActions cursor;
+
 
     public TerminalHandler() {
+        this.cursor = new CursorActions(this);
         try {
             terminal = TerminalBuilder.builder().system(true).build();
             reader = terminal.reader();
@@ -53,7 +57,7 @@ public class TerminalHandler {
         while ((key = readKey()) != ENTER || line.isEmpty()) {
             devCheat(key); // dev cheat TODO: remove
             if (!escapeSequenceDetected(key)) {
-                if (isPrintableASCII(key) && line.length() < LIMIT) {
+                if (isPrintableASCII(key) && line.length() < MAX_LENGTH) {
                     type(key);
                 } else if (backspacePressed(key) && cursorPos > 0) {
                     delete();
@@ -62,8 +66,8 @@ public class TerminalHandler {
             }
         }
         cursorPos = 0;
-        Cursor.moveCursorTo(screenHeight(), 1);
-        Cursor.clearLineAfterCursor();
+        cursor.moveTo(screenHeight(), 1);
+        cursor.clearLineAfterCursor();
         return line.toString();
     }
 
@@ -88,7 +92,7 @@ public class TerminalHandler {
     private void delete() {
         cursorPos--;
         line.deleteCharAt(cursorPos);
-        Cursor.backward();
+        cursor.backward();
         printLineAfterCursor();
     }
 
@@ -101,21 +105,21 @@ public class TerminalHandler {
     }
 
     private void printLineAfterCursor() {
-        Cursor.savePosition();
+        cursor.savePosition();
         for (int i = cursorPos; i < line.length(); i++) {
             System.out.print(line.charAt(i));
         }
-        Cursor.clearLineAfterCursor();
-        Cursor.restorePosition();
+        cursor.clearLineAfterCursor();
+        cursor.restorePosition();
     }
 
     private void displayCharCount() {
         if (!ipAssigned) return; // when prompting the IP, char count isn't displayed
         String nums = Integer.toString(line.length());
-        Cursor.savePosition();
-        Cursor.moveCursorTo(screenHeight() - 1, screenWidth() - 4 - nums.length());
-        System.out.print(line.length() + "/" + LIMIT);
-        Cursor.restorePosition();
+        cursor.savePosition();
+        cursor.moveTo(screenHeight() - 1, screenWidth() - 4 - nums.length());
+        System.out.print(line.length() + "/" + MAX_LENGTH);
+        cursor.restorePosition();
     }
 
 
@@ -153,14 +157,14 @@ public class TerminalHandler {
             case 'C':
                 if (cursorPos < line.length()) {
                     cursorPos++;
-                    Cursor.forward();
+                    cursor.forward();
                 }
                 break;
             
             case 'D':
                 if (cursorPos > 0) {
                     cursorPos--;
-                    Cursor.backward();
+                    cursor.backward();
                 }
                 break;
         
@@ -177,11 +181,12 @@ public class TerminalHandler {
     }
 
 
-    private void getCursorPos() {
-        String cursorPos = terminal.getCursorPosition(null).toString().replaceAll("[^,\\d]", "");
-        String[] positions = cursorPos.split(",");
-        int x = Integer.parseInt(positions[0]);
-        int y = Integer.parseInt(positions[1]);
+    public Cursor getCursorPos() {
+        // String cursorPos = terminal.getCursorPosition(null).toString().replaceAll("[^,\\d]", "");
+        // String[] positions = cursorPos.split(",");
+        // int x = Integer.parseInt(positions[0]);
+        // int y = Integer.parseInt(positions[1]);
+        return terminal.getCursorPosition(null);
     }
 
 

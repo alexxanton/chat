@@ -1,5 +1,5 @@
 package com.chat;
 
-public class TextBubble extends Cursor {
-    public TextBubble(String msg) {}
+public class TextBubble {
+    public TextBubble(String msg, int width, int height) {}
 }
