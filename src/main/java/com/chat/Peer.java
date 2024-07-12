@@ -16,7 +16,7 @@ public class Peer extends TerminalHandler {
     private boolean loadingAnimationStarted = false;
     public ArrayList<String> msgList = new ArrayList<>();
 
-    
+
     public void connect() {
         ipAssign();
         startServer();
@@ -103,7 +103,7 @@ public class Peer extends TerminalHandler {
         } catch (IOException e) {
             System.err.println(e.getMessage() + ".");
         }
-        System.out.print(cursor.SHOW_CURSOR);
+        cursor.show();
     }
 
 
@@ -185,9 +185,10 @@ public class Peer extends TerminalHandler {
     // COMMANDS
 
     private void displayCount() {
-        System.out.print(cursor.SAVE_CURSOR_POSITION + cursor.CURSOR_UP + cursor.MOVE_CURSOR_TO_1ST_COLUMN);
+        cursor.savePosition();
+        cursor.moveTo(screenHeight(), screenWidth() - 10);
         System.out.print("Messages: " + count());
-        System.out.print(cursor.RESTORE_CURSOR_POSITION);
+        cursor.restorePosition();
     }
 
     private int count() {
@@ -207,16 +208,16 @@ public class Peer extends TerminalHandler {
         loadingAnimationStarted = true;
         Thread loadingAnimation = new Thread(() -> {
             int index = 0;
-            System.out.print(cursor.HIDE_CURSOR);
+            cursor.hide();
             while (!connected) {
-                System.out.print(cursor.MOVE_CURSOR_TO_1ST_COLUMN);
+                System.out.println(cursor.MOVE_CURSOR_TO_1ST_COLUMN);
                 if (index > 3) index = 0;
                 System.out.print("Couldn't connect to server. Retrying" + ".".repeat(index));
-                System.out.print(cursor.CLEAR_LINE_AFTER_CURSOR);
+                cursor.clearLineAfterCursor();
                 index++;
                 threadSleep(300);
             }
-            System.out.print(cursor.SHOW_CURSOR);
+            cursor.show();
         });
         loadingAnimation.start();
     }

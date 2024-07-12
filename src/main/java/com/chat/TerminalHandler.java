@@ -1,7 +1,6 @@
 package com.chat;
 
 import java.io.IOException;
-
 import org.jline.terminal.Cursor;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
