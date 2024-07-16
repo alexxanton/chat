@@ -14,16 +14,20 @@ public class Peer extends TerminalHandler {
     private boolean connected = false;
     private boolean searchMode = false;
     private boolean loadingAnimationStarted = false;
-    public ArrayList<String> msgList = new ArrayList<>();
+    private static ArrayList<String> msgList = new ArrayList<>();
 
 
+    public Peer() {
+        super(msgList);
+    }
+    
     public void connect() {
         ipAssign();
         startServer();
         handleScreenResize();
         startClient();
     }
-
+    
 
     // IP ADDRESS
 

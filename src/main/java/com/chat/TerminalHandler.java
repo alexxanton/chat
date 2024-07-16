@@ -1,6 +1,8 @@
 package com.chat;
 
 import java.io.IOException;
+import java.util.ArrayList;
+
 import org.jline.terminal.Cursor;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
@@ -22,10 +24,12 @@ public class TerminalHandler {
     public boolean loop = true;
     public boolean ipAssigned = false;
     public CursorActions cursor;
+    private ArrayList<String> msgList;
 
 
-    public TerminalHandler() {
+    public TerminalHandler(ArrayList<String> msgList) {
         this.cursor = new CursorActions(this);
+        this.msgList = msgList;
         try {
             terminal = TerminalBuilder.builder().system(true).build();
             reader = terminal.reader();
@@ -181,10 +185,6 @@ public class TerminalHandler {
 
 
     public Cursor getCursorPos() {
-        // String cursorPos = terminal.getCursorPosition(null).toString().replaceAll("[^,\\d]", "");
-        // String[] positions = cursorPos.split(",");
-        // int x = Integer.parseInt(positions[0]);
-        // int y = Integer.parseInt(positions[1]);
         return terminal.getCursorPosition(null);
     }
 
@@ -200,6 +200,10 @@ public class TerminalHandler {
         height = terminal.getHeight();
         clearScreen();
         // System.out.println(width + "x" + height);
+    }
+
+    public void refreshScreen() {
+        System.out.println(msgList);
     }
     
     public int screenWidth() {

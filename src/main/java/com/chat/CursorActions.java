@@ -13,11 +13,11 @@ public class CursorActions {
     private final String RESTORE_CURSOR_POSITION = "\033[u";
     private final String CLEAR_LINE_AFTER_CURSOR = "\033[K";
     public final String MOVE_CURSOR_TO_1ST_COLUMN = "\033[G";
-    private TerminalHandler terminal;
+    private TerminalHandler terminalHandler;
     
     
-    public CursorActions(TerminalHandler terminal) {
-        this.terminal = terminal;
+    public CursorActions(TerminalHandler terminalHandler) {
+        this.terminalHandler = terminalHandler;
         System.out.print(SHOW_CURSOR);
     }
 
@@ -31,12 +31,12 @@ public class CursorActions {
     }
 
     public int getX() {
-        Cursor cursor = terminal.getCursorPos();
+        Cursor cursor = terminalHandler.getCursorPos();
         return cursor.getX();
     }
 
     public int getY() {
-        Cursor cursor = terminal.getCursorPos();
+        Cursor cursor = terminalHandler.getCursorPos();
         return cursor.getY();
     }
 
