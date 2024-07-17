@@ -118,9 +118,9 @@ public class TerminalHandler {
 
     private void displayCharCount() {
         if (!ipAssigned) return; // when prompting the IP, char count isn't displayed
-        String nums = Integer.toString(line.length());
+        String countDisplay = Integer.toString(line.length());
         cursor.savePosition();
-        cursor.moveTo(screenHeight() - 1, screenWidth() - 4 - nums.length());
+        cursor.moveTo(screenHeight() - 1, screenWidth() - 3 - countDisplay.length());
         System.out.print(line.length() + "/" + MAX_LENGTH);
         cursor.restorePosition();
     }

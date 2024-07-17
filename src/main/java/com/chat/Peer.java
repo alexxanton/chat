@@ -121,19 +121,31 @@ public class Peer extends TerminalHandler {
                     String msg = input.readLine();
                     if (msg != null) {
                         msgList.add(msg);
+                        cursor.savePosition();
                         cursor.moveTo(count(), 1);
                         System.out.println(msg);
-                        cursor.moveTo(screenHeight(), 1);
+                        cursor.restorePosition();
                     }
                     socket.close();
                     threadSleep(100);
                 }
                 catch (Exception e) {
-                    System.err.println("Couldn't connect to server. " + e.getMessage() + ".");
+                    displayError("Couldn't connect to server. " + e.getMessage());
                 }
             }
         });
         thread.start();
+    }
+
+    private void displayError(String error) {
+        clearScreen();
+        cursor.hide();
+        System.err.print(error + ".\nTrying again");
+        for (int i = 1; i <= 3; i++) {
+            threadSleep(100);
+            System.out.print(".".repeat(i));
+        }
+        // cursor.show();
     }
 
 
@@ -185,8 +197,9 @@ public class Peer extends TerminalHandler {
     // COMMANDS
 
     private void displayCount() {
+        String countDisplay = Integer.toString(count());
         cursor.savePosition();
-        cursor.moveTo(screenHeight(), screenWidth() - 10);
+        cursor.moveTo(screenHeight(), screenWidth() - 9 - countDisplay.length());
         System.out.print("Messages: " + count());
         cursor.restorePosition();
     }
