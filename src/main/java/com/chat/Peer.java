@@ -11,9 +11,7 @@ import java.util.ArrayList;
 public class Peer extends TerminalHandler {
     private final int PORT = 3000;
     private String ipAddress = "";
-    private boolean connected = false;
     private boolean searchMode = false;
-    private boolean loadingAnimationStarted = false;
     private static ArrayList<String> msgList = new ArrayList<>();
 
 
@@ -128,12 +126,10 @@ public class Peer extends TerminalHandler {
                         cursor.moveTo(screenHeight(), 1);
                     }
                     socket.close();
-                    connected = true;
                     threadSleep(100);
                 }
                 catch (Exception e) {
-                    if (connected) System.err.println("Couldn't connect to server. " + e.getMessage() + ".");
-                    else if (!loadingAnimationStarted) startLoadingAnimation();
+                    System.err.println("Couldn't connect to server. " + e.getMessage() + ".");
                 }
             }
         });
@@ -146,10 +142,10 @@ public class Peer extends TerminalHandler {
     private boolean keywordDetected(String str) {
         String line = str.toLowerCase().replaceAll("^\\s*|\\s*$", "");
         switch (line) {
-            case "quit"  : loop = false;        break;
-            case "find"  : searchMode = true;   break;
-            case "cancel": searchMode = false;  break;
-            case "count" : displayCount();      break;
+            case "quit" : loop = false;        break;
+            case "find" : searchMode = true;   break;
+            case "done" : searchMode = false;  break;
+            case "count": displayCount();      break;
             default:
                 if (line.matches("^(goto|up|down|dwn|rm)\\s*\\d*$")) {
                     splitAndExecuteCommand(line);
@@ -203,26 +199,5 @@ public class Peer extends TerminalHandler {
     }
 
     private void remove(int id) {
-    }
-
-
-    // ANIMATION
-
-    private void startLoadingAnimation() {
-        loadingAnimationStarted = true;
-        Thread loadingAnimation = new Thread(() -> {
-            int index = 0;
-            cursor.hide();
-            while (!connected) {
-                System.out.println(cursor.MOVE_CURSOR_TO_1ST_COLUMN);
-                if (index > 3) index = 0;
-                System.out.print("Couldn't connect to server. Retrying" + ".".repeat(index));
-                cursor.clearLineAfterCursor();
-                index++;
-                threadSleep(300);
-            }
-            cursor.show();
-        });
-        loadingAnimation.start();
     }
 }
