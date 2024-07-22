@@ -68,7 +68,7 @@ public class Peer extends TerminalHandler {
                         if (!keywordDetected(msg)) {
                             if (!searchMode) {
                                 msgList.add(msg);
-                                cursor.moveTo(count(), screenWidth() / 2);
+                                cursor.moveTo(msgCount(), screenWidth() / 2);
                                 System.out.println(msg);
                                 cursor.moveTo(screenHeight(), 1);
                                 output.println(msg);
@@ -92,24 +92,6 @@ public class Peer extends TerminalHandler {
         thread.start();
     }
 
-    private void displayArrows() {
-        cursor.moveTo(screenHeight(), 1);
-        String arrows = ">> ";
-        if (searchMode) {
-            arrows = "?> ";
-        }
-        System.out.print(arrows);
-    }
-
-    private void close(ServerSocket server) {
-        try {
-            server.close();
-        } catch (IOException e) {
-            System.err.println(e.getMessage() + ".");
-        }
-        cursor.show();
-    }
-
 
     // CLIENT
 
@@ -121,14 +103,14 @@ public class Peer extends TerminalHandler {
                     InputStreamReader streamReader = new InputStreamReader(socket.getInputStream());
                     input = new BufferedReader(streamReader);
                     String msg = input.readLine();
-                    input.close();
+
                     if (msg != null) {
                         msgList.add(msg);
                         cursor.savePosition();
-                        cursor.moveTo(count(), 1);
+                        cursor.moveTo(msgCount(), 1);
                         System.out.println(msg);
                         cursor.restorePosition();
-                        if (msg.equals("quit")) {
+                        if (msg.equals("exit")) {
                             loop = false;
                             stopListeningKeys();
                         }
@@ -143,24 +125,6 @@ public class Peer extends TerminalHandler {
             }
         });
         thread.start();
-    }
-
-    private void displayError(String error) {
-        clearScreen();
-        cursor.hide();
-        System.err.print(error + ".\nTrying again");
-        for (int i = 0; i < 3; i++) {
-            threadSleep(100);
-            System.out.print(".");
-        }
-        for (int i = 0; i < 3; i++) {
-            cursor.backward();
-        }
-        for (int i = 0; i < 3; i++) {
-            threadSleep(100);
-            System.out.print(" ");
-        }
-        // cursor.show();
     }
 
 
@@ -187,7 +151,7 @@ public class Peer extends TerminalHandler {
         String line = str.replaceAll("\\s", "");
         String[] splits = line.split("(?<=\\D)(?=\\d)");
         int num = 1;
-        int id = count(); // defaults to last message
+        int id = msgCount(); // defaults to last message
 
         if (splits.length > 1) {
             num = Integer.parseInt(splits[1]);
@@ -211,16 +175,16 @@ public class Peer extends TerminalHandler {
 
     // COMMANDS
 
-    private void displayCount() {
-        String countDisplay = Integer.toString(count());
-        cursor.savePosition();
-        cursor.moveTo(screenHeight(), screenWidth() - 9 - countDisplay.length());
-        System.out.print("Messages: " + count());
-        cursor.restorePosition();
+    private int msgCount() {
+        return msgList.size();
     }
 
-    private int count() {
-        return msgList.size();
+    private void displayCount() {
+        String countDisplay = Integer.toString(msgCount());
+        cursor.savePosition();
+        cursor.moveTo(screenHeight(), screenWidth() - 9 - countDisplay.length());
+        System.out.print("Messages: " + msgCount());
+        cursor.restorePosition();
     }
 
     private void goTo(int id) {
@@ -230,13 +194,52 @@ public class Peer extends TerminalHandler {
     }
 
     private void closeConnection() {
-        output.println("quit");
+        output.println("exit");
         loop = false;
         try {
             input.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        // clearScreen();
+        clearScreen();
+    }
+
+
+    // OTHER
+
+    private void displayArrows() {
+        cursor.moveTo(screenHeight(), 1);
+        String arrows = ">> ";
+        if (searchMode) {
+            arrows = "?> ";
+        }
+        System.out.print(arrows);
+    }
+
+    private void close(ServerSocket server) {
+        try {
+            server.close();
+        } catch (IOException e) {
+            System.err.println(e.getMessage() + ".");
+        }
+        cursor.show();
+    }
+
+    private void displayError(String error) {
+        clearScreen();
+        cursor.hide();
+        System.err.print(error + ".\nTrying again");
+        for (int i = 0; i < 3; i++) {
+            threadSleep(100);
+            System.out.print(".");
+        }
+        for (int i = 0; i < 3; i++) {
+            cursor.backward();
+        }
+        for (int i = 0; i < 3; i++) {
+            threadSleep(100);
+            System.out.print(" ");
+        }
+        // cursor.show();
     }
 }

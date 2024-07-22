@@ -57,7 +57,7 @@ public class TerminalHandler {
         char key;
         line = new StringBuilder();
         displayCharCount();
-        while ((key = readKey()) != ENTER || line.isEmpty()) {
+        while (((key = readKey()) != ENTER || line.isEmpty()) && loop) {
             devCheat(key); // dev cheat TODO: remove
             if (!escapeSequenceDetected(key)) {
                 if (isPrintableASCII(key) && line.length() < MAX_LENGTH) {
