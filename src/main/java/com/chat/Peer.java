@@ -12,8 +12,8 @@ public class Peer extends TerminalHandler {
     private final int PORT = 3000;
     private String ipAddress = "";
     private boolean searchMode = false;
-    private PrintWriter output;
-    private BufferedReader input;
+    private PrintWriter sender;
+    private BufferedReader receiver;
     private static ArrayList<String> msgList = new ArrayList<>();
 
 
@@ -23,9 +23,9 @@ public class Peer extends TerminalHandler {
     
     public void connect() {
         ipAssign();
-        startServer();
+        startSender();
         handleScreenResize();
-        startClient();
+        startReceiver();
     }
     
 
@@ -52,16 +52,16 @@ public class Peer extends TerminalHandler {
     }
 
 
-    // SERVER
+    // SENDER
 
-    private void startServer() {
+    private void startSender() {
         Thread thread = new Thread(() -> {
             try {
                 ServerSocket server = new ServerSocket(PORT);
                 while (loop) {
                     try {
                         Socket client = server.accept();
-                        output = new PrintWriter(client.getOutputStream(), true);
+                        sender = new PrintWriter(client.getOutputStream(), true);
                         displayArrows();
                         String msg = readKeys();
     
@@ -71,7 +71,7 @@ public class Peer extends TerminalHandler {
                                 cursor.moveTo(msgCount(), screenWidth() / 2);
                                 System.out.println(msg);
                                 cursor.moveTo(screenHeight(), 1);
-                                output.println(msg);
+                                sender.println(msg);
                             }
                         }
                         
@@ -93,16 +93,16 @@ public class Peer extends TerminalHandler {
     }
 
 
-    // CLIENT
+    // RECEIVER
 
-    private void startClient() {
+    private void startReceiver() {
         Thread thread = new Thread(() -> {
             while (loop) {
                 try {
                     Socket socket = new Socket(ipAddress, PORT);
                     InputStreamReader streamReader = new InputStreamReader(socket.getInputStream());
-                    input = new BufferedReader(streamReader);
-                    String msg = input.readLine();
+                    receiver = new BufferedReader(streamReader);
+                    String msg = receiver.readLine();
 
                     if (msg != null) {
                         msgList.add(msg);
@@ -110,7 +110,7 @@ public class Peer extends TerminalHandler {
                         cursor.moveTo(msgCount(), 1);
                         System.out.println(msg);
                         cursor.restorePosition();
-                        if (msg.equals("exit")) {
+                        if (msg.equals("quit")) {
                             loop = false;
                             stopListeningKeys();
                         }
@@ -194,10 +194,10 @@ public class Peer extends TerminalHandler {
     }
 
     private void closeConnection() {
-        output.println("exit");
+        sender.println("quit");
         loop = false;
         try {
-            input.close();
+            receiver.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
