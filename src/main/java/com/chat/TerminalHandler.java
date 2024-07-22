@@ -74,6 +74,14 @@ public class TerminalHandler {
         return line.toString();
     }
 
+    public void stopListeningKeys() {
+        try {
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void devCheat(char key) {
         if (key == 209) {
             line.append("192.168.1.114");

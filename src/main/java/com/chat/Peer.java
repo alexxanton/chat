@@ -12,6 +12,8 @@ public class Peer extends TerminalHandler {
     private final int PORT = 3000;
     private String ipAddress = "";
     private boolean searchMode = false;
+    private PrintWriter output;
+    private BufferedReader input;
     private static ArrayList<String> msgList = new ArrayList<>();
 
 
@@ -59,10 +61,10 @@ public class Peer extends TerminalHandler {
                 while (loop) {
                     try {
                         Socket client = server.accept();
-                        PrintWriter output = new PrintWriter(client.getOutputStream(), true);
+                        output = new PrintWriter(client.getOutputStream(), true);
                         displayArrows();
                         String msg = readKeys();
-
+    
                         if (!keywordDetected(msg)) {
                             if (!searchMode) {
                                 msgList.add(msg);
@@ -80,11 +82,11 @@ public class Peer extends TerminalHandler {
                         System.err.println("Error. " + e.getMessage() + ".");
                     }
                 }
+                
                 close(server);
-                clearScreen();
             }
             catch (IOException e) {
-                System.err.println("Couldn't connect to client. " + e.getMessage() + ".");
+                displayError("Couldn't connect to client. " + e.getMessage());
             }
         });
         thread.start();
@@ -115,17 +117,23 @@ public class Peer extends TerminalHandler {
         Thread thread = new Thread(() -> {
             while (loop) {
                 try {
-                    // TODO: upon reconnecting after someone exits, the 1st message is lost
                     Socket socket = new Socket(ipAddress, PORT);
-                    BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                    InputStreamReader streamReader = new InputStreamReader(socket.getInputStream());
+                    input = new BufferedReader(streamReader);
                     String msg = input.readLine();
+                    input.close();
                     if (msg != null) {
                         msgList.add(msg);
                         cursor.savePosition();
                         cursor.moveTo(count(), 1);
                         System.out.println(msg);
                         cursor.restorePosition();
+                        if (msg.equals("quit")) {
+                            loop = false;
+                            stopListeningKeys();
+                        }
                     }
+                    
                     socket.close();
                     threadSleep(100);
                 }
@@ -141,9 +149,16 @@ public class Peer extends TerminalHandler {
         clearScreen();
         cursor.hide();
         System.err.print(error + ".\nTrying again");
-        for (int i = 1; i <= 3; i++) {
+        for (int i = 0; i < 3; i++) {
             threadSleep(100);
-            System.out.print(".".repeat(i));
+            System.out.print(".");
+        }
+        for (int i = 0; i < 3; i++) {
+            cursor.backward();
+        }
+        for (int i = 0; i < 3; i++) {
+            threadSleep(100);
+            System.out.print(" ");
         }
         // cursor.show();
     }
@@ -154,10 +169,10 @@ public class Peer extends TerminalHandler {
     private boolean keywordDetected(String str) {
         String line = str.toLowerCase().replaceAll("^\\s*|\\s*$", "");
         switch (line) {
-            case "quit" : loop = false;        break;
             case "find" : searchMode = true;   break;
             case "done" : searchMode = false;  break;
             case "count": displayCount();      break;
+            case "quit" : closeConnection();   break;
             default:
                 if (line.matches("^(goto|up|down|dwn|rm)\\s*\\d*$")) {
                     splitAndExecuteCommand(line);
@@ -212,5 +227,16 @@ public class Peer extends TerminalHandler {
     }
 
     private void remove(int id) {
+    }
+
+    private void closeConnection() {
+        output.println("quit");
+        loop = false;
+        try {
+            input.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        // clearScreen();
     }
 }
