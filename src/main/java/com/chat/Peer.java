@@ -14,11 +14,12 @@ public class Peer extends TerminalHandler {
     private boolean searchMode = false;
     private PrintWriter sender;
     private BufferedReader receiver;
+    private static boolean ipAssigned = false;
     private static ArrayList<String> msgList = new ArrayList<>();
 
 
     public Peer() {
-        super(msgList);
+        super(msgList, ipAssigned);
     }
     
     public void connect() {
@@ -32,22 +33,26 @@ public class Peer extends TerminalHandler {
     // IP ADDRESS
 
     private void ipAssign() {
-        boolean valid = false;
         cursor.moveTo(screenHeight(), 1);
         System.out.print("Enter the IP: ");
-        while (!valid) {
+        while (!ipAssigned) {
             ipAddress = readKeys();
-            valid = ipValidation();
-            if (!valid) System.out.print("Invalid IP, try again: ");
+            ipAssigned = ipValidation();
         }
-        ipAssigned = true;
     }
 
     private boolean ipValidation() {
         ipAddress = ipAddress.replaceAll("^\\s*|\\s*$", "");
-        if (ipAddress.matches("^((25[0-5]|(2[0-4]|1[0-9]|[1-9]|)[0-9])(\\.(?!$)|$)){4}$")) {
+        if (ipAddress.matches("^((25[0-5]|(2[0-4]|1[0-9]|[1-9]|)[0-9])(\\.(?!$)|(\\@[a-z]+)*$)){4}$")) {
+            if (ipAddress.contains("@")) {
+                String[] splits = ipAddress.split("\\@");
+                ipAddress = splits[0];
+                String userName = splits[1];
+                System.out.println("Chating with " + userName);
+            }
             return true;
         }
+        System.out.print("Invalid IP, try again: ");
         return false;
     }
 
@@ -111,8 +116,8 @@ public class Peer extends TerminalHandler {
                         System.out.println(msg);
                         cursor.restorePosition();
                         if (msg.equals("quit")) {
-                            loop = false;
                             stopListeningKeys();
+                            closeConnection();
                         }
                     }
                     
@@ -133,10 +138,10 @@ public class Peer extends TerminalHandler {
     private boolean keywordDetected(String str) {
         String line = str.toLowerCase().replaceAll("^\\s*|\\s*$", "");
         switch (line) {
-            case "find" : searchMode = true;   break;
-            case "done" : searchMode = false;  break;
-            case "count": displayCount();      break;
-            case "quit" : closeConnection();   break;
+            case "find" : searchMode = true;    break;
+            case "done" : searchMode = false;   break;
+            case "count": displayCount();       break;
+            case "quit" : closeConnection();    break;
             default:
                 if (line.matches("^(goto|up|down|dwn|rm)\\s*\\d*$")) {
                     splitAndExecuteCommand(line);
@@ -150,7 +155,8 @@ public class Peer extends TerminalHandler {
     private void splitAndExecuteCommand(String str) {
         String line = str.replaceAll("\\s", "");
         String[] splits = line.split("(?<=\\D)(?=\\d)");
-        int num = 1;
+        String keyword = splits[0];
+        int num = 1; // default amount
         int id = msgCount(); // defaults to last message
 
         if (splits.length > 1) {
@@ -158,17 +164,11 @@ public class Peer extends TerminalHandler {
             id = num;
         }
 
-        if (line.contains("goto")) {
-            goTo(id);
-        } else if (line.contains("rm")) {
-            remove(id);
-        } else {
-            String keyword = splits[0];
-            if (keyword.equals("up")) {
-                scrollUpBy(num);
-            } else {
-                scrollDownBy(num);
-            }
+        switch (keyword) {
+            case "goto" :   goTo(id);           break;
+            case "rm"   :   remove(id);         break;
+            case "up"   :   scrollUpBy(num);    break;
+            default     :   scrollDownBy(num);  break;
         }
     }
 

@@ -22,12 +22,12 @@ public class TerminalHandler {
     private NonBlockingReader reader;
     private boolean sequenceStarted = false;
     public boolean loop = true;
-    public boolean ipAssigned = false;
     public CursorActions cursor;
     private ArrayList<String> msgList;
+    private boolean ipAssigned = false;
 
 
-    public TerminalHandler(ArrayList<String> msgList) {
+    public TerminalHandler(ArrayList<String> msgList, boolean ipAssigned) {
         this.cursor = new CursorActions(this);
         this.msgList = msgList;
         try {
